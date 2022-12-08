@@ -8,6 +8,7 @@
 #include <cstring>
 #include <iterator>
 #include <unordered_set>
+#include <queue>
 #include <map>
 #include <stdexcept>
 #include <math.h>
@@ -1141,6 +1142,132 @@ std::tuple<arma::mat, arma::mat, arma::mat, arma::mat, arma::mat, arma::mat, arm
   return result;
 }
 
+std::tuple<arma::mat, arma::mat, arma::mat, arma::mat, arma::mat, arma::mat, arma::vec, arma::vec> Molecule::directInversionIterativeSubspaceAlogrithm(
+  arma::mat gammaMatrix, 
+  arma::mat overlapMatrix,
+  arma::mat hCoreMatrix,
+  int pElectrons,
+  int qElectrons,
+  int numPrevIters,  
+  bool consoleLog
+) {
+  // Initialize the queue kPrevIters of zero matrix
+  std::queue<arma::mat> kPrevDensityMatrices;
+  for (int i = 0; i < numPrevIters; i += 1) {
+    arma::mat temp(numberAtomicBasisFunctions, numberAtomicBasisFunctions);
+    kPrevDensityMatrices.push(temp);
+  }
+
+  arma::mat fockAlpha;
+  arma::mat fockBeta;
+  arma::vec epsilonAlpha;
+  arma::vec epsilonBeta;
+  arma::mat molecularOrbitalCoefficientsAlpha;
+  arma::mat molecularOrbitalCoefficientsBeta;
+  double totalE = 0, totalEnergyOld = std::numeric_limits<double>::max();
+  arma::vec pTot(numberOfAtoms, arma::fill::zeros);
+  arma::mat densityMatrixAlphaOld;
+  arma::mat densityMatrixBetaOld;
+  arma::mat densityMatrixAlpha(numberAtomicBasisFunctions, numberAtomicBasisFunctions, arma::fill::zeros);
+  arma::mat densityMatrixBeta(numberAtomicBasisFunctions, numberAtomicBasisFunctions, arma::fill::zeros);
+  arma::mat (numberAtomicBasisFunctions, numberAtomicBasisFunctions, arma::fill::zeros);
+  double tolerance = 1e-6;
+  int iterationCount = 0;
+
+  if (consoleLog) {
+    std::cout << "gamma" << std::endl;
+    gammaMatrix.print();
+    std::cout << "Overlap" << std::endl;
+    overlapMatrix.print();
+    std::cout << "H_core" << std::endl;
+    hCoreMatrix.print();
+    std::cout << "p = " << pElectrons << " q = " << qElectrons << std::endl;
+  }
+
+  // while (maxDelta > tolerance) {
+  while (sqrt(pow(totalE - totalEnergyOld, 2)) > tolerance && iterationCount < 300) {
+
+    fockAlpha = fockOperatorMatrix(gammaMatrix, densityMatrixAlpha, overlapMatrix, pTot);
+    fockBeta = fockOperatorMatrix(gammaMatrix, densityMatrixBeta, overlapMatrix, pTot);
+
+    arma::eig_sym(epsilonAlpha, molecularOrbitalCoefficientsAlpha, fockAlpha);
+    arma::eig_sym(epsilonBeta, molecularOrbitalCoefficientsBeta, fockBeta);
+      
+    densityMatrixAlphaOld = densityMatrixAlpha;
+    densityMatrixBetaOld = densityMatrixBeta;
+
+    if (pElectrons > 0) {
+      densityMatrixAlpha = molecularOrbitalCoefficientsAlpha.cols(0, pElectrons - 1) * molecularOrbitalCoefficientsAlpha.cols(0, pElectrons - 1).t();
+    }
+    if (qElectrons > 0) {
+      densityMatrixBeta = molecularOrbitalCoefficientsBeta.cols(0, qElectrons - 1) * molecularOrbitalCoefficientsBeta.cols(0, qElectrons - 1).t();
+    }
+
+    pTot = densityPerAtom(densityMatrixAlpha, densityMatrixBeta);
+
+    if (consoleLog) {
+      std::cout << "Iteration: " << iterationCount << std::endl;
+    
+      std::cout << "Fa" << std::endl;
+      fockAlpha.print();
+      std::cout << "Fb" << std::endl;
+      fockBeta.print();
+
+      std::cout << "Ca" << std::endl;
+      molecularOrbitalCoefficientsAlpha.print();
+      std::cout << "Cb" << std::endl;
+      molecularOrbitalCoefficientsBeta.print();
+
+      std::cout << "Ea" << std::endl;
+      epsilonAlpha.print();
+      std::cout << "Eb" << std::endl;
+      epsilonBeta.print();
+
+      std::cout << "Pa_old" << std::endl;
+      densityMatrixAlphaOld.print();
+      std::cout << "Pb_old" << std::endl;
+      densityMatrixBetaOld.print();
+    
+      std::cout << "Pa_new" << std::endl;
+      densityMatrixAlpha.print();
+      std::cout << "Pb_new" << std::endl;
+      densityMatrixBeta.print();
+
+      std::cout << "P_t" << std::endl;
+      pTot.print();
+  
+      std::cout << "Ga" << std::endl;
+      (fockAlpha - hCoreMatrix).print();
+      std::cout << "Gb" << std::endl;
+      (fockBeta - hCoreMatrix).print();
+    }
+
+    totalEnergyOld = totalE;
+    totalE = totalEnergy(
+      fockAlpha,
+      fockBeta,
+      hCoreMatrix,
+      hCoreMatrix,
+      densityMatrixAlpha,
+      densityMatrixBeta
+    );
+
+    iterationCount += 1;
+  }
+
+  std::tuple<
+      arma::mat, arma::mat, 
+      arma::mat, arma::mat, 
+      arma::mat, arma::mat, 
+      arma::vec, arma::vec> result = std::make_tuple(
+        fockAlpha, fockBeta,
+        densityMatrixAlpha, densityMatrixBeta,
+        molecularOrbitalCoefficientsAlpha, molecularOrbitalCoefficientsBeta,
+        epsilonAlpha, epsilonBeta
+      );
+  return result;
+}
+
 double Molecule::nuclearRepulsionEnergy() {
   double nuclearRepulsion = 0.0;
   for (int i = 0; i < atomicNumbers.size(); i += 1) {
@@ -1328,4 +1455,3 @@ arma::mat Molecule::energyDerivative(
 
   return result;
 }
- 

@@ -135,6 +135,19 @@ class Molecule {
         int qElectrons,
         bool consoleLog
       );
+      std::tuple<
+      arma::mat, arma::mat, 
+      arma::mat, arma::mat, 
+      arma::mat, arma::mat, 
+      arma::vec, arma::vec> directInversionIterativeSubspaceAlogrithm(
+        arma::mat gammaMatrix, 
+        arma::mat overlapMatrix,
+        arma::mat hCoreMatrix,
+        int pElectrons,
+        int qElectrons,
+        int numPrevIters,
+        bool consoleLog
+      );
       double electronicEnergy(
         arma::mat fockAlphaMatrix,
         arma::mat fockBetaMatrix,
