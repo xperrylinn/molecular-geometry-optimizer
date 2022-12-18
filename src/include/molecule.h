@@ -145,9 +145,11 @@ class Molecule {
         arma::mat hCoreMatrix,
         int pElectrons,
         int qElectrons,
-        int numPrevIters,
+        double lambda,
+        int numPrevIters,  
         bool consoleLog
       );
+      arma::mat generateLagrangeMultiplierMatrix(std::deque<arma::mat> errorMatrices);
       double electronicEnergy(
         arma::mat fockAlphaMatrix,
         arma::mat fockBetaMatrix,

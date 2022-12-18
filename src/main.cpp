@@ -15,7 +15,8 @@ int main(int argc, char** argv) {
     
     // Run the calculation
     Molecule molecule = moleculeFromTxt(filePath, allowed_atoms);
-    arma::mat moleculeOverlapMatrix = molecule.overlapMatrix();
+    // arma::mat moleculeOverlapMatrix = molecule.overlapMatrix();
+    arma::mat moleculeOverlapMatrix(molecule.numberAtomicBasisFunctions, molecule.numberAtomicBasisFunctions, arma::fill::ones);
     arma::mat moleculeGammaMatrix = molecule.gammaMatrix();
     arma::mat hCoreMatrix = molecule.hCoreMatrix(
       moleculeGammaMatrix,
@@ -30,6 +31,7 @@ int main(int argc, char** argv) {
                 hCoreMatrix,
                 p,
                 q,
+                1.0,
                 7,
                 true
     );

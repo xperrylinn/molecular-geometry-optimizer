@@ -1,0 +1,85 @@
+Hello World!
+lagrangeMatixAlpha
+        0  -1.0000
+  -1.0000        0
+lagrangeMatixBeta
+        0  -1.0000
+  -1.0000        0
+lagrangeContantsVectorAlpha
+        0
+  -1.0000
+lagrangeContantsVectorBeta
+        0
+  -1.0000
+lagrangeSolutionAlpha
+   1.0000
+        0
+lagrangeSolutionBeta
+   1.0000
+        0
+newExtrapolatedFockMatrixAlpha
+   -7.1760  -16.7244
+  -16.7244   -7.1760
+newExtrapolatedFockMatrixBeta
+   -7.1760  -16.7244
+  -16.7244   -7.1760
+newExtrapolatedDensityMatrixAlpha
+   0.5000   0.5000
+   0.5000   0.5000
+newExtrapolatedDensityMatrixBeta
+   0.5000   0.5000
+   0.5000   0.5000
+newExtrapolatedErrorMatrixAlpha
+        0        0
+        0        0
+newExtrapolatedErrorMatrixBeta
+        0        0
+        0        0
+Iteration count: 0, queueSize: 1, totaLEnergy-46.7619, totalEnergyOld: 0
+lagrangeMatixAlpha
+        0        0  -1.0000
+        0        0  -1.0000
+  -1.0000  -1.0000        0
+lagrangeMatixBeta
+        0        0  -1.0000
+        0        0  -1.0000
+  -1.0000  -1.0000        0
+lagrangeContantsVectorAlpha
+        0
+        0
+  -1.0000
+lagrangeContantsVectorBeta
+        0
+        0
+  -1.0000
+lagrangeSolutionAlpha
+   0.5000
+   0.5000
+        0
+lagrangeSolutionBeta
+   0.5000
+   0.5000
+        0
+newExtrapolatedFockMatrixAlpha
+   -7.1760  -16.7244
+  -16.7244   -7.1760
+newExtrapolatedFockMatrixBeta
+   -7.1760  -16.7244
+  -16.7244   -7.1760
+newExtrapolatedDensityMatrixAlpha
+   0.5000   0.5000
+   0.5000   0.5000
+newExtrapolatedDensityMatrixBeta
+   0.5000   0.5000
+   0.5000   0.5000
+newExtrapolatedErrorMatrixAlpha
+        0        0
+        0        0
+newExtrapolatedErrorMatrixBeta
+        0        0
+        0        0
+Iteration count: 1, queueSize: 2, totaLEnergy-46.7619, totalEnergyOld: -46.7619
+Nuclear Repulsion Energy: 19.3022 eV
+Electronic energy: -66.0641 eV
+Total energy: -46.7619 eV
+Homework 5
