@@ -17,25 +17,78 @@ lagrangeSolutionAlpha
 lagrangeSolutionBeta
    1.0000
         0
-newExtrapolatedFockMatrixAlpha
-   -7.1760  -16.7244
-  -16.7244   -7.1760
-newExtrapolatedFockMatrixBeta
-   -7.1760  -16.7244
-  -16.7244   -7.1760
-newExtrapolatedDensityMatrixAlpha
-   0.5000   0.5000
-   0.5000   0.5000
-newExtrapolatedDensityMatrixBeta
-   0.5000   0.5000
-   0.5000   0.5000
-newExtrapolatedErrorMatrixAlpha
+extrapolated matrices - linear combos of k previous matrices
+extrapolatedFockMatrixAlpha
+  -33.1637   -5.9035
+   -5.9035  -33.1637
+extrapolatedFockMatrixBeta
+  -33.1637   -5.9035
+   -5.9035  -33.1637
+extrapolatedErrorMatrixAlpha
         0        0
         0        0
-newExtrapolatedErrorMatrixBeta
+extrapolatedErrorMatrixBeta
         0        0
         0        0
-Iteration count: 0, queueSize: 1, totaLEnergy-46.7619, totalEnergyOld: 0
+new extrapolated matrices
+newExtrapolatedDensityMatrixAlpha 0
+   0.5000   0.5000
+   0.5000   0.5000
+newExtrapolatedDensityMatrixBeta 0
+   0.5000   0.5000
+   0.5000   0.5000
+newExtrapolatedFockMatrixAlpha 0
+   -7.1760  -13.6279
+  -13.6279   -7.1760
+newExtrapolatedFockMatrixBeta 0
+   -7.1760  -13.6279
+  -13.6279   -7.1760
+newExtrapolatedErrorMatrixAlpha 0
+        0        0
+        0        0
+newExtrapolatedErrorMatrixBeta 0
+        0        0
+        0        0
+Density matrices queue
+kPrevDensityMatricesAlpha 0
+        0        0
+        0        0
+kPrevDensityMatricesAlpha 1
+   0.5000   0.5000
+   0.5000   0.5000
+kPrevDensityMatricesBeta 0
+        0        0
+        0        0
+kPrevDensityMatricesBeta 1
+   0.5000   0.5000
+   0.5000   0.5000
+Fock matrices queue
+kPrevFockMatricesAlpha 0
+  -33.1637   -5.9035
+   -5.9035  -33.1637
+kPrevFockMatricesAlpha 1
+   -7.1760  -13.6279
+  -13.6279   -7.1760
+kPrevFockMatricesBeta 0
+  -33.1637   -5.9035
+   -5.9035  -33.1637
+kPrevFockMatricesBeta 1
+   -7.1760  -13.6279
+  -13.6279   -7.1760
+Error matrices queue
+kPrevErrorMatricesAlpha 0
+        0        0
+        0        0
+kPrevErrorMatricesAlpha 1
+        0        0
+        0        0
+kPrevErrorMatricesBeta 0
+        0        0
+        0        0
+kPrevErrorMatricesBeta 1
+        0        0
+        0        0
+Iteration count: 0, queueSize: 1, totaLEnergy-40.5689, totalEnergyOld: 0
 lagrangeMatixAlpha
         0        0  -1.0000
         0        0  -1.0000
@@ -60,26 +113,582 @@ lagrangeSolutionBeta
    0.5000
    0.5000
         0
-newExtrapolatedFockMatrixAlpha
-   -7.1760  -16.7244
-  -16.7244   -7.1760
-newExtrapolatedFockMatrixBeta
-   -7.1760  -16.7244
-  -16.7244   -7.1760
-newExtrapolatedDensityMatrixAlpha
-   0.5000   0.5000
-   0.5000   0.5000
-newExtrapolatedDensityMatrixBeta
-   0.5000   0.5000
-   0.5000   0.5000
-newExtrapolatedErrorMatrixAlpha
+extrapolated matrices - linear combos of k previous matrices
+extrapolatedFockMatrixAlpha
+  -20.1698   -9.7657
+   -9.7657  -20.1698
+extrapolatedFockMatrixBeta
+  -20.1698   -9.7657
+   -9.7657  -20.1698
+extrapolatedErrorMatrixAlpha
         0        0
         0        0
-newExtrapolatedErrorMatrixBeta
+extrapolatedErrorMatrixBeta
         0        0
         0        0
-Iteration count: 1, queueSize: 2, totaLEnergy-46.7619, totalEnergyOld: -46.7619
+new extrapolated matrices
+newExtrapolatedDensityMatrixAlpha 1
+   0.5000   0.5000
+   0.5000   0.5000
+newExtrapolatedDensityMatrixBeta 1
+   0.5000   0.5000
+   0.5000   0.5000
+newExtrapolatedFockMatrixAlpha 1
+   -7.1760  -13.6279
+  -13.6279   -7.1760
+newExtrapolatedFockMatrixBeta 1
+   -7.1760  -13.6279
+  -13.6279   -7.1760
+newExtrapolatedErrorMatrixAlpha 1
+        0        0
+        0        0
+newExtrapolatedErrorMatrixBeta 1
+        0        0
+        0        0
+Density matrices queue
+kPrevDensityMatricesAlpha 0
+        0        0
+        0        0
+kPrevDensityMatricesAlpha 1
+   0.5000   0.5000
+   0.5000   0.5000
+kPrevDensityMatricesAlpha 2
+   0.5000   0.5000
+   0.5000   0.5000
+kPrevDensityMatricesBeta 0
+        0        0
+        0        0
+kPrevDensityMatricesBeta 1
+   0.5000   0.5000
+   0.5000   0.5000
+kPrevDensityMatricesBeta 2
+   0.5000   0.5000
+   0.5000   0.5000
+Fock matrices queue
+kPrevFockMatricesAlpha 0
+  -33.1637   -5.9035
+   -5.9035  -33.1637
+kPrevFockMatricesAlpha 1
+   -7.1760  -13.6279
+  -13.6279   -7.1760
+kPrevFockMatricesAlpha 2
+   -7.1760  -13.6279
+  -13.6279   -7.1760
+kPrevFockMatricesBeta 0
+  -33.1637   -5.9035
+   -5.9035  -33.1637
+kPrevFockMatricesBeta 1
+   -7.1760  -13.6279
+  -13.6279   -7.1760
+kPrevFockMatricesBeta 2
+   -7.1760  -13.6279
+  -13.6279   -7.1760
+Error matrices queue
+kPrevErrorMatricesAlpha 0
+        0        0
+        0        0
+kPrevErrorMatricesAlpha 1
+        0        0
+        0        0
+kPrevErrorMatricesAlpha 2
+        0        0
+        0        0
+kPrevErrorMatricesBeta 0
+        0        0
+        0        0
+kPrevErrorMatricesBeta 1
+        0        0
+        0        0
+kPrevErrorMatricesBeta 2
+        0        0
+        0        0
+Iteration count: 1, queueSize: 2, totaLEnergy-40.5689, totalEnergyOld: -40.5689
+lagrangeMatixAlpha
+        0        0        0  -1.0000
+        0        0        0  -1.0000
+        0        0        0  -1.0000
+  -1.0000  -1.0000  -1.0000        0
+lagrangeMatixBeta
+        0        0        0  -1.0000
+        0        0        0  -1.0000
+        0        0        0  -1.0000
+  -1.0000  -1.0000  -1.0000        0
+lagrangeContantsVectorAlpha
+        0
+        0
+        0
+  -1.0000
+lagrangeContantsVectorBeta
+        0
+        0
+        0
+  -1.0000
+lagrangeSolutionAlpha
+   0.3333
+   0.3333
+   0.3333
+        0
+lagrangeSolutionBeta
+   0.3333
+   0.3333
+   0.3333
+        0
+extrapolated matrices - linear combos of k previous matrices
+extrapolatedFockMatrixAlpha
+  -15.8386  -11.0531
+  -11.0531  -15.8386
+extrapolatedFockMatrixBeta
+  -15.8386  -11.0531
+  -11.0531  -15.8386
+extrapolatedErrorMatrixAlpha
+        0        0
+        0        0
+extrapolatedErrorMatrixBeta
+        0        0
+        0        0
+new extrapolated matrices
+newExtrapolatedDensityMatrixAlpha 2
+   0.5000   0.5000
+   0.5000   0.5000
+newExtrapolatedDensityMatrixBeta 2
+   0.5000   0.5000
+   0.5000   0.5000
+newExtrapolatedFockMatrixAlpha 2
+   -7.1760  -13.6279
+  -13.6279   -7.1760
+newExtrapolatedFockMatrixBeta 2
+   -7.1760  -13.6279
+  -13.6279   -7.1760
+newExtrapolatedErrorMatrixAlpha 2
+        0        0
+        0        0
+newExtrapolatedErrorMatrixBeta 2
+        0        0
+        0        0
+Density matrices queue
+kPrevDensityMatricesAlpha 0
+        0        0
+        0        0
+kPrevDensityMatricesAlpha 1
+   0.5000   0.5000
+   0.5000   0.5000
+kPrevDensityMatricesAlpha 2
+   0.5000   0.5000
+   0.5000   0.5000
+kPrevDensityMatricesAlpha 3
+   0.5000   0.5000
+   0.5000   0.5000
+kPrevDensityMatricesBeta 0
+        0        0
+        0        0
+kPrevDensityMatricesBeta 1
+   0.5000   0.5000
+   0.5000   0.5000
+kPrevDensityMatricesBeta 2
+   0.5000   0.5000
+   0.5000   0.5000
+kPrevDensityMatricesBeta 3
+   0.5000   0.5000
+   0.5000   0.5000
+Fock matrices queue
+kPrevFockMatricesAlpha 0
+  -33.1637   -5.9035
+   -5.9035  -33.1637
+kPrevFockMatricesAlpha 1
+   -7.1760  -13.6279
+  -13.6279   -7.1760
+kPrevFockMatricesAlpha 2
+   -7.1760  -13.6279
+  -13.6279   -7.1760
+kPrevFockMatricesAlpha 3
+   -7.1760  -13.6279
+  -13.6279   -7.1760
+kPrevFockMatricesBeta 0
+  -33.1637   -5.9035
+   -5.9035  -33.1637
+kPrevFockMatricesBeta 1
+   -7.1760  -13.6279
+  -13.6279   -7.1760
+kPrevFockMatricesBeta 2
+   -7.1760  -13.6279
+  -13.6279   -7.1760
+kPrevFockMatricesBeta 3
+   -7.1760  -13.6279
+  -13.6279   -7.1760
+Error matrices queue
+kPrevErrorMatricesAlpha 0
+        0        0
+        0        0
+kPrevErrorMatricesAlpha 1
+        0        0
+        0        0
+kPrevErrorMatricesAlpha 2
+        0        0
+        0        0
+kPrevErrorMatricesAlpha 3
+        0        0
+        0        0
+kPrevErrorMatricesBeta 0
+        0        0
+        0        0
+kPrevErrorMatricesBeta 1
+        0        0
+        0        0
+kPrevErrorMatricesBeta 2
+        0        0
+        0        0
+kPrevErrorMatricesBeta 3
+        0        0
+        0        0
+Iteration count: 2, queueSize: 3, totaLEnergy-40.5689, totalEnergyOld: -40.5689
+lagrangeMatixAlpha
+        0        0        0        0  -1.0000
+        0        0        0        0  -1.0000
+        0        0        0        0  -1.0000
+        0        0        0        0  -1.0000
+  -1.0000  -1.0000  -1.0000  -1.0000        0
+lagrangeMatixBeta
+        0        0        0        0  -1.0000
+        0        0        0        0  -1.0000
+        0        0        0        0  -1.0000
+        0        0        0        0  -1.0000
+  -1.0000  -1.0000  -1.0000  -1.0000        0
+lagrangeContantsVectorAlpha
+        0
+        0
+        0
+        0
+  -1.0000
+lagrangeContantsVectorBeta
+        0
+        0
+        0
+        0
+  -1.0000
+lagrangeSolutionAlpha
+   0.2500
+   0.2500
+   0.2500
+   0.2500
+        0
+lagrangeSolutionBeta
+   0.2500
+   0.2500
+   0.2500
+   0.2500
+        0
+extrapolated matrices - linear combos of k previous matrices
+extrapolatedFockMatrixAlpha
+  -13.6729  -11.6968
+  -11.6968  -13.6729
+extrapolatedFockMatrixBeta
+  -13.6729  -11.6968
+  -11.6968  -13.6729
+extrapolatedErrorMatrixAlpha
+        0        0
+        0        0
+extrapolatedErrorMatrixBeta
+        0        0
+        0        0
+new extrapolated matrices
+newExtrapolatedDensityMatrixAlpha 3
+   0.5000   0.5000
+   0.5000   0.5000
+newExtrapolatedDensityMatrixBeta 3
+   0.5000   0.5000
+   0.5000   0.5000
+newExtrapolatedFockMatrixAlpha 3
+   -7.1760  -13.6279
+  -13.6279   -7.1760
+newExtrapolatedFockMatrixBeta 3
+   -7.1760  -13.6279
+  -13.6279   -7.1760
+newExtrapolatedErrorMatrixAlpha 3
+        0        0
+        0        0
+newExtrapolatedErrorMatrixBeta 3
+        0        0
+        0        0
+Density matrices queue
+kPrevDensityMatricesAlpha 0
+        0        0
+        0        0
+kPrevDensityMatricesAlpha 1
+   0.5000   0.5000
+   0.5000   0.5000
+kPrevDensityMatricesAlpha 2
+   0.5000   0.5000
+   0.5000   0.5000
+kPrevDensityMatricesAlpha 3
+   0.5000   0.5000
+   0.5000   0.5000
+kPrevDensityMatricesAlpha 4
+   0.5000   0.5000
+   0.5000   0.5000
+kPrevDensityMatricesBeta 0
+        0        0
+        0        0
+kPrevDensityMatricesBeta 1
+   0.5000   0.5000
+   0.5000   0.5000
+kPrevDensityMatricesBeta 2
+   0.5000   0.5000
+   0.5000   0.5000
+kPrevDensityMatricesBeta 3
+   0.5000   0.5000
+   0.5000   0.5000
+kPrevDensityMatricesBeta 4
+   0.5000   0.5000
+   0.5000   0.5000
+Fock matrices queue
+kPrevFockMatricesAlpha 0
+  -33.1637   -5.9035
+   -5.9035  -33.1637
+kPrevFockMatricesAlpha 1
+   -7.1760  -13.6279
+  -13.6279   -7.1760
+kPrevFockMatricesAlpha 2
+   -7.1760  -13.6279
+  -13.6279   -7.1760
+kPrevFockMatricesAlpha 3
+   -7.1760  -13.6279
+  -13.6279   -7.1760
+kPrevFockMatricesAlpha 4
+   -7.1760  -13.6279
+  -13.6279   -7.1760
+kPrevFockMatricesBeta 0
+  -33.1637   -5.9035
+   -5.9035  -33.1637
+kPrevFockMatricesBeta 1
+   -7.1760  -13.6279
+  -13.6279   -7.1760
+kPrevFockMatricesBeta 2
+   -7.1760  -13.6279
+  -13.6279   -7.1760
+kPrevFockMatricesBeta 3
+   -7.1760  -13.6279
+  -13.6279   -7.1760
+kPrevFockMatricesBeta 4
+   -7.1760  -13.6279
+  -13.6279   -7.1760
+Error matrices queue
+kPrevErrorMatricesAlpha 0
+        0        0
+        0        0
+kPrevErrorMatricesAlpha 1
+        0        0
+        0        0
+kPrevErrorMatricesAlpha 2
+        0        0
+        0        0
+kPrevErrorMatricesAlpha 3
+        0        0
+        0        0
+kPrevErrorMatricesAlpha 4
+        0        0
+        0        0
+kPrevErrorMatricesBeta 0
+        0        0
+        0        0
+kPrevErrorMatricesBeta 1
+        0        0
+        0        0
+kPrevErrorMatricesBeta 2
+        0        0
+        0        0
+kPrevErrorMatricesBeta 3
+        0        0
+        0        0
+kPrevErrorMatricesBeta 4
+        0        0
+        0        0
+Iteration count: 3, queueSize: 4, totaLEnergy-40.5689, totalEnergyOld: -40.5689
+lagrangeMatixAlpha
+        0        0        0        0        0  -1.0000
+        0        0        0        0        0  -1.0000
+        0        0        0        0        0  -1.0000
+        0        0        0        0        0  -1.0000
+        0        0        0        0        0  -1.0000
+  -1.0000  -1.0000  -1.0000  -1.0000  -1.0000        0
+lagrangeMatixBeta
+        0        0        0        0        0  -1.0000
+        0        0        0        0        0  -1.0000
+        0        0        0        0        0  -1.0000
+        0        0        0        0        0  -1.0000
+        0        0        0        0        0  -1.0000
+  -1.0000  -1.0000  -1.0000  -1.0000  -1.0000        0
+lagrangeContantsVectorAlpha
+        0
+        0
+        0
+        0
+        0
+  -1.0000
+lagrangeContantsVectorBeta
+        0
+        0
+        0
+        0
+        0
+  -1.0000
+lagrangeSolutionAlpha
+   0.2000
+   0.2000
+   0.2000
+   0.2000
+   0.2000
+        0
+lagrangeSolutionBeta
+   0.2000
+   0.2000
+   0.2000
+   0.2000
+   0.2000
+        0
+extrapolated matrices - linear combos of k previous matrices
+extrapolatedFockMatrixAlpha
+  -12.3735  -12.0830
+  -12.0830  -12.3735
+extrapolatedFockMatrixBeta
+  -12.3735  -12.0830
+  -12.0830  -12.3735
+extrapolatedErrorMatrixAlpha
+        0        0
+        0        0
+extrapolatedErrorMatrixBeta
+        0        0
+        0        0
+new extrapolated matrices
+newExtrapolatedDensityMatrixAlpha 4
+   0.5000   0.5000
+   0.5000   0.5000
+newExtrapolatedDensityMatrixBeta 4
+   0.5000   0.5000
+   0.5000   0.5000
+newExtrapolatedFockMatrixAlpha 4
+   -7.1760  -13.6279
+  -13.6279   -7.1760
+newExtrapolatedFockMatrixBeta 4
+   -7.1760  -13.6279
+  -13.6279   -7.1760
+newExtrapolatedErrorMatrixAlpha 4
+        0        0
+        0        0
+newExtrapolatedErrorMatrixBeta 4
+        0        0
+        0        0
+Density matrices queue
+kPrevDensityMatricesAlpha 0
+        0        0
+        0        0
+kPrevDensityMatricesAlpha 1
+   0.5000   0.5000
+   0.5000   0.5000
+kPrevDensityMatricesAlpha 2
+   0.5000   0.5000
+   0.5000   0.5000
+kPrevDensityMatricesAlpha 3
+   0.5000   0.5000
+   0.5000   0.5000
+kPrevDensityMatricesAlpha 4
+   0.5000   0.5000
+   0.5000   0.5000
+kPrevDensityMatricesAlpha 5
+   0.5000   0.5000
+   0.5000   0.5000
+kPrevDensityMatricesBeta 0
+        0        0
+        0        0
+kPrevDensityMatricesBeta 1
+   0.5000   0.5000
+   0.5000   0.5000
+kPrevDensityMatricesBeta 2
+   0.5000   0.5000
+   0.5000   0.5000
+kPrevDensityMatricesBeta 3
+   0.5000   0.5000
+   0.5000   0.5000
+kPrevDensityMatricesBeta 4
+   0.5000   0.5000
+   0.5000   0.5000
+kPrevDensityMatricesBeta 5
+   0.5000   0.5000
+   0.5000   0.5000
+Fock matrices queue
+kPrevFockMatricesAlpha 0
+  -33.1637   -5.9035
+   -5.9035  -33.1637
+kPrevFockMatricesAlpha 1
+   -7.1760  -13.6279
+  -13.6279   -7.1760
+kPrevFockMatricesAlpha 2
+   -7.1760  -13.6279
+  -13.6279   -7.1760
+kPrevFockMatricesAlpha 3
+   -7.1760  -13.6279
+  -13.6279   -7.1760
+kPrevFockMatricesAlpha 4
+   -7.1760  -13.6279
+  -13.6279   -7.1760
+kPrevFockMatricesAlpha 5
+   -7.1760  -13.6279
+  -13.6279   -7.1760
+kPrevFockMatricesBeta 0
+  -33.1637   -5.9035
+   -5.9035  -33.1637
+kPrevFockMatricesBeta 1
+   -7.1760  -13.6279
+  -13.6279   -7.1760
+kPrevFockMatricesBeta 2
+   -7.1760  -13.6279
+  -13.6279   -7.1760
+kPrevFockMatricesBeta 3
+   -7.1760  -13.6279
+  -13.6279   -7.1760
+kPrevFockMatricesBeta 4
+   -7.1760  -13.6279
+  -13.6279   -7.1760
+kPrevFockMatricesBeta 5
+   -7.1760  -13.6279
+  -13.6279   -7.1760
+Error matrices queue
+kPrevErrorMatricesAlpha 0
+        0        0
+        0        0
+kPrevErrorMatricesAlpha 1
+        0        0
+        0        0
+kPrevErrorMatricesAlpha 2
+        0        0
+        0        0
+kPrevErrorMatricesAlpha 3
+        0        0
+        0        0
+kPrevErrorMatricesAlpha 4
+        0        0
+        0        0
+kPrevErrorMatricesAlpha 5
+        0        0
+        0        0
+kPrevErrorMatricesBeta 0
+        0        0
+        0        0
+kPrevErrorMatricesBeta 1
+        0        0
+        0        0
+kPrevErrorMatricesBeta 2
+        0        0
+        0        0
+kPrevErrorMatricesBeta 3
+        0        0
+        0        0
+kPrevErrorMatricesBeta 4
+        0        0
+        0        0
+kPrevErrorMatricesBeta 5
+        0        0
+        0        0
+Iteration count: 4, queueSize: 5, totaLEnergy-40.5689, totalEnergyOld: -40.5689
 Nuclear Repulsion Energy: 19.3022 eV
-Electronic energy: -66.0641 eV
-Total energy: -46.7619 eV
-Homework 5
+Electronic energy: -59.8711 eV
+Total energy: -40.5689 eV

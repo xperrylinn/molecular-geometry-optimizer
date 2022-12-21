@@ -14,6 +14,7 @@ class Molecule {
       arma::imat basisFunctions;
       int numberAtomicBasisFunctions;
       int numberElectronPairs;
+      int numberAlphaElectrons, numberBetaElectrons;
       std::map<int, std::map<int, arma::vec>> contractionCoefficientMap;
       std::map<int, std::map<int, arma::vec>> contractionExponentMap;
       std::map<int, std::map<int, double>> ionizationEnergyAtomicNumberAngularMomentumMap;
@@ -28,7 +29,7 @@ class Molecule {
       Constructors 
       */
      // Data structure arguments
-      Molecule(arma::mat coords, arma::ivec atomicNums);
+      Molecule(arma::mat coords, arma::ivec atomicNums, int p, int q);
       
       /* 
       Member functions 
@@ -145,9 +146,9 @@ class Molecule {
         arma::mat hCoreMatrix,
         int pElectrons,
         int qElectrons,
-        double lambda,
-        int numPrevIters,  
-        bool consoleLog
+        int numPrevIters,
+        bool consoleLog,
+        double lambda
       );
       arma::mat generateLagrangeMultiplierMatrix(std::deque<arma::mat> errorMatrices);
       double electronicEnergy(
@@ -168,8 +169,8 @@ class Molecule {
         arma::mat densityBetaMatrix,
         arma::mat densityAlphaMatrix
       );
+      double totalEnergy();
       arma::vec densityPerAtom(arma::mat densityMatrixAlpha, arma::mat densityMatrixBeta);
-      arma::mat gMatrix();
       arma::mat overlapMatrixPositionDerivative();
       arma::vec gammaTwoCenterTwoElectronRepulsionIntegralPositionDerivative(
         arma::vec contractionCoefficientsA,
@@ -197,6 +198,9 @@ class Molecule {
         arma::mat yCoefficientMatrix,
         arma::mat nuclearRepulsionEnergyPositionDerivative
       );
+      arma::mat energyDerivative(arma::mat densityAlphaMatrix, arma::mat densityBetaMatrix);
+      arma::mat geometryOptimizer(std::string optimizer);
+      arma::mat steepestDescentGeometryOptimizer();
 };
 
-Molecule moleculeFromTxt(std::string rel_file_path, std::unordered_set<std::string> allowed_symbols);
+Molecule moleculeFromTxt(std::string rel_file_path, std::unordered_set<std::string> allowed_symbols, int p, int q);

@@ -18,7 +18,7 @@
 #include <tuple>
 
 
-Molecule moleculeFromTxt(std::string rel_file_path, std::unordered_set<std::string> allowed_symbols) {
+Molecule moleculeFromTxt(std::string rel_file_path, std::unordered_set<std::string> allowed_symbols, int p, int q) {
   
   // Attempt to read in file
   std::ifstream txtFile(rel_file_path);
@@ -72,11 +72,11 @@ Molecule moleculeFromTxt(std::string rel_file_path, std::unordered_set<std::stri
       if (invalid_atom_count_error) {
         error_string += ("- the txt file header stated " + std::to_string(atomCountRef) + " atoms, but " + std::to_string(atomCountActual) + " were found.\n");
       }
-          throw std::invalid_argument(error_string);
+      throw std::invalid_argument(error_string);
     }
 
     // Instantiate Molecule and return
-    Molecule molecule(coordinates, atomicNumbers);
+    Molecule molecule(coordinates, atomicNumbers, p, q);
     return molecule;
   } else {
     // Molecule molecule;
@@ -120,10 +120,12 @@ arma::imat starsAndBarsMatrix(int numStars, int numBars) {
     return iMat;
 }
 
-Molecule::Molecule(arma::mat coords, arma::ivec atomicNums) {
+Molecule::Molecule(arma::mat coords, arma::ivec atomicNums, int p, int q) {
   numberOfAtoms = atomicNums.size();
   coordinates = coords;
   atomicNumbers = atomicNums;
+  numberAlphaElectrons = p;
+  numberBetaElectrons = q;
   /* 
   Populate maps 
   Contraction Coefficients and Constants are sourced from sto-3g.1.json, https://www.basissetexchange.org/
@@ -1148,11 +1150,13 @@ std::tuple<arma::mat, arma::mat, arma::mat, arma::mat, arma::mat, arma::mat, arm
   arma::mat hCoreMatrix,
   int pElectrons,
   int qElectrons,
-  double lambda,
   int numPrevIters,  
-  bool consoleLog
+  bool consoleLog,
+  double lambda
 ) {
   // Initialize data structures
+  std::deque<arma::mat> kPrevMolOrbitalCoeffMatricesAlpha;
+  std::deque<arma::mat> kPrevMolOrbitalCoeffMatricesBeta;
   std::deque<arma::mat> kPrevDensityMatricesAlpha;
   std::deque<arma::mat> kPrevDensityMatricesBeta;
   std::deque<arma::mat> kPrevFockMatricesAlpha;
@@ -1170,13 +1174,8 @@ std::tuple<arma::mat, arma::mat, arma::mat, arma::mat, arma::mat, arma::mat, arm
   arma::mat densityMatrixBeta(numberAtomicBasisFunctions, numberAtomicBasisFunctions, arma::fill::zeros);
   arma::mat fockAlpha = fockOperatorMatrix(gammaMatrix, densityMatrixAlpha, overlapMatrix, pTot);
   arma::mat fockBeta = fockOperatorMatrix(gammaMatrix, densityMatrixBeta, overlapMatrix, pTot);
-  
-  arma::mat newExtrapolatedErrorMatrixAlpha(numberAtomicBasisFunctions, numberAtomicBasisFunctions, arma::fill::zeros);
-  arma::mat newExtrapolatedErrorMatrixBeta(numberAtomicBasisFunctions, numberAtomicBasisFunctions, arma::fill::zeros);
-  arma::mat newExtrapolatedDensityMatrixAlpha(numberAtomicBasisFunctions, numberAtomicBasisFunctions, arma::fill::zeros);
-  arma::mat newExtrapolatedDensityMatrixBeta(numberAtomicBasisFunctions, numberAtomicBasisFunctions, arma::fill::zeros);
-  arma::mat newExtrapolatedFockMatrixAlpha(numberAtomicBasisFunctions, numberAtomicBasisFunctions, arma::fill::zeros);
-  arma::mat newExtrapolatedFockMatrixBeta(numberAtomicBasisFunctions, numberAtomicBasisFunctions, arma::fill::zeros);
+
+  arma::mat prevDensityMatrixAlpha(numberAtomicBasisFunctions, numberAtomicBasisFunctions, arma::fill::value(std::numeric_limits<double>::max()));
 
   double totalE = 0, totalEnergyOld = std::numeric_limits<double>::max();
   double tolerance = 1e-6;
@@ -1196,14 +1195,6 @@ std::tuple<arma::mat, arma::mat, arma::mat, arma::mat, arma::mat, arma::mat, arm
   // Check for convergence
   while (sqrt(pow(totalE - totalEnergyOld, 2)) > tolerance) {
     
-    // Define extrapolated matrices to go to back of queue
-    arma::mat extrapMolOrbCoefficientsAlpha;
-    arma::mat extrapMolOrbCoefficientsBeta;
-    arma::mat extrapDensityMatrixAlpha;
-    arma::mat extrapDensityMatrixBeta;
-    arma::mat extrapFockMatrixAlpha;
-    arma::mat extrapFockMatrixBeta;
-
     // Create DIIS equations and solve for extrapolation coefficients
     arma::mat lagrangeMatixAlpha = generateLagrangeMultiplierMatrix(kPrevErrorMatricesAlpha);
     arma::mat lagrangeMatixBeta = generateLagrangeMultiplierMatrix(kPrevErrorMatricesBeta);
@@ -1223,53 +1214,72 @@ std::tuple<arma::mat, arma::mat, arma::mat, arma::mat, arma::mat, arma::mat, arm
     }
 
     // Compute new extrapolated Matrices
+    // Define extrapolated matrices to go to back of queue
+    arma::mat extrapolatedErrorMatrixAlpha(numberAtomicBasisFunctions, numberAtomicBasisFunctions, arma::fill::zeros);
+    arma::mat extrapolatedErrorMatrixBeta(numberAtomicBasisFunctions, numberAtomicBasisFunctions, arma::fill::zeros);
+    arma::mat extrapolatedFockMatrixAlpha(numberAtomicBasisFunctions, numberAtomicBasisFunctions, arma::fill::zeros);
+    arma::mat extrapolatedFockMatrixBeta(numberAtomicBasisFunctions, numberAtomicBasisFunctions, arma::fill::zeros);
     for (int i = 0; i < queueSize; i += 1) {
       arma::mat currErrorMatrixAlpha = kPrevErrorMatricesAlpha[i];
       arma::mat currErrorMatrixBeta = kPrevErrorMatricesBeta[i];
-      arma::mat currDensityMatrixAlpha = kPrevDensityMatricesAlpha[i];
-      arma::mat currDensityMatrixBeta = kPrevDensityMatricesBeta[i];
       arma::mat currFockMatrixAlpha = kPrevFockMatricesAlpha[i];
       arma::mat currFockMatrixBeta = kPrevFockMatricesBeta[i];
-      newExtrapolatedErrorMatrixAlpha += lagrangeSolutionAlpha.at(i, 0) * currErrorMatrixAlpha;
-      newExtrapolatedErrorMatrixBeta += lagrangeSolutionBeta.at(i, 0) * currErrorMatrixBeta;
-      newExtrapolatedFockMatrixAlpha += lagrangeSolutionBeta.at(i, 0) * currFockMatrixAlpha;
-      newExtrapolatedFockMatrixBeta += lagrangeSolutionBeta.at(i, 0) * currFockMatrixBeta;
+      extrapolatedErrorMatrixAlpha += lagrangeSolutionAlpha.at(i, 0) * currErrorMatrixAlpha;
+      extrapolatedErrorMatrixBeta += lagrangeSolutionBeta.at(i, 0) * currErrorMatrixBeta;
+      extrapolatedFockMatrixAlpha += lagrangeSolutionBeta.at(i, 0) * currFockMatrixAlpha;
+      extrapolatedFockMatrixBeta += lagrangeSolutionBeta.at(i, 0) * currFockMatrixBeta;
+    }
+
+      // Logging information
+    if (consoleLog) {
+      std::cout << "extrapolated matrices - linear combos of k previous matrices" << std::endl;
+      extrapolatedFockMatrixAlpha.print("extrapolatedFockMatrixAlpha");
+      extrapolatedFockMatrixBeta.print("extrapolatedFockMatrixBeta");
+      extrapolatedErrorMatrixAlpha.print("extrapolatedErrorMatrixAlpha");
+      extrapolatedErrorMatrixBeta.print("extrapolatedErrorMatrixBeta");
     }
 
     // Solve the SCF euqations to create a molecular orbital coefficient matrix
-    arma::eig_sym(epsilonAlpha, extrapMolOrbCoefficientsAlpha, newExtrapolatedFockMatrixAlpha);
-    arma::eig_sym(epsilonBeta, extrapMolOrbCoefficientsBeta, newExtrapolatedFockMatrixBeta);
+    arma::mat newExtrapMolOrbCoefficientsAlpha;
+    arma::mat newExtrapMolOrbCoefficientsBeta;
+    arma::eig_sym(epsilonAlpha, newExtrapMolOrbCoefficientsAlpha, extrapolatedFockMatrixAlpha);
+    arma::eig_sym(epsilonBeta, newExtrapMolOrbCoefficientsBeta, extrapolatedFockMatrixBeta);
 
     // Calculate a new density from extrapolated molecular orbital coefficient matrix
+    arma::mat newExtrapolatedDensityMatrixAlpha;
+    arma::mat newExtrapolatedDensityMatrixBeta;
     if (pElectrons > 0) {
-      newExtrapolatedDensityMatrixAlpha = extrapMolOrbCoefficientsAlpha.cols(0, pElectrons - 1) * \
-                            extrapMolOrbCoefficientsAlpha.cols(0, pElectrons - 1).t();
+      newExtrapolatedDensityMatrixAlpha = newExtrapMolOrbCoefficientsAlpha.cols(0, pElectrons - 1) * \
+                            newExtrapMolOrbCoefficientsAlpha.cols(0, pElectrons - 1).t();
     }
     if (qElectrons > 0) {
-      newExtrapolatedDensityMatrixBeta = extrapMolOrbCoefficientsBeta.cols(0, qElectrons - 1) * \
-                            extrapMolOrbCoefficientsBeta.cols(0, qElectrons - 1).t();
+      newExtrapolatedDensityMatrixBeta = newExtrapMolOrbCoefficientsBeta.cols(0, qElectrons - 1) * \
+                            newExtrapMolOrbCoefficientsBeta.cols(0, qElectrons - 1).t();
     }    
     pTot = densityPerAtom(newExtrapolatedDensityMatrixAlpha, newExtrapolatedDensityMatrixBeta);
 
     // Calculate new fock matrices
-    newExtrapolatedFockMatrixAlpha = fockOperatorMatrix(gammaMatrix, newExtrapolatedDensityMatrixAlpha, overlapMatrix, pTot);
-    newExtrapolatedFockMatrixBeta = fockOperatorMatrix(gammaMatrix, newExtrapolatedDensityMatrixBeta, overlapMatrix, pTot);
+    arma::mat newExtrapolatedFockMatrixAlpha = fockOperatorMatrix(gammaMatrix, newExtrapolatedDensityMatrixAlpha, overlapMatrix, pTot);
+    arma::mat newExtrapolatedFockMatrixBeta = fockOperatorMatrix(gammaMatrix, newExtrapolatedDensityMatrixBeta, overlapMatrix, pTot);
 
-    // Using newly calculate fock and density matrices, calculate new error matrices
-    newExtrapolatedErrorMatrixAlpha = newExtrapolatedFockMatrixAlpha * newExtrapolatedDensityMatrixAlpha - newExtrapolatedDensityMatrixAlpha * newExtrapolatedFockMatrixAlpha;
-    newExtrapolatedErrorMatrixBeta = newExtrapolatedFockMatrixBeta * newExtrapolatedDensityMatrixBeta - newExtrapolatedDensityMatrixBeta * newExtrapolatedFockMatrixBeta;
+    // Using newly calculated fock and density matrices, calculate new error matrices
+    arma::mat newExtrapolatedErrorMatrixAlpha = newExtrapolatedFockMatrixAlpha * newExtrapolatedDensityMatrixAlpha - newExtrapolatedDensityMatrixAlpha * newExtrapolatedFockMatrixAlpha;
+    arma::mat newExtrapolatedErrorMatrixBeta = newExtrapolatedFockMatrixBeta * newExtrapolatedDensityMatrixBeta - newExtrapolatedDensityMatrixBeta * newExtrapolatedFockMatrixBeta;
 
     // Logging information
     if (consoleLog) {
-      newExtrapolatedFockMatrixAlpha.print("newExtrapolatedFockMatrixAlpha");
-      newExtrapolatedFockMatrixBeta.print("newExtrapolatedFockMatrixBeta");
-      newExtrapolatedDensityMatrixAlpha.print("newExtrapolatedDensityMatrixAlpha");
-      newExtrapolatedDensityMatrixBeta.print("newExtrapolatedDensityMatrixBeta");
-      newExtrapolatedErrorMatrixAlpha.print("newExtrapolatedErrorMatrixAlpha");
-      newExtrapolatedErrorMatrixBeta.print("newExtrapolatedErrorMatrixBeta");
+      std::cout << "new extrapolated matrices" << std::endl;
+      newExtrapolatedDensityMatrixAlpha.print("newExtrapolatedDensityMatrixAlpha " + std::to_string(iterationCount));
+      newExtrapolatedDensityMatrixBeta.print("newExtrapolatedDensityMatrixBeta " + std::to_string(iterationCount));
+      newExtrapolatedFockMatrixAlpha.print("newExtrapolatedFockMatrixAlpha " + std::to_string(iterationCount));
+      newExtrapolatedFockMatrixBeta.print("newExtrapolatedFockMatrixBeta " + std::to_string(iterationCount));
+      newExtrapolatedErrorMatrixAlpha.print("newExtrapolatedErrorMatrixAlpha " + std::to_string(iterationCount));
+      newExtrapolatedErrorMatrixBeta.print("newExtrapolatedErrorMatrixBeta " + std::to_string(iterationCount));
     }
 
     // Decide how to manage queue
+    kPrevMolOrbitalCoeffMatricesAlpha.push_back(newExtrapMolOrbCoefficientsAlpha);
+    kPrevMolOrbitalCoeffMatricesBeta.push_back(newExtrapMolOrbCoefficientsBeta);
     kPrevDensityMatricesAlpha.push_back(newExtrapolatedDensityMatrixAlpha);
     kPrevDensityMatricesBeta.push_back(newExtrapolatedDensityMatrixBeta);
     kPrevErrorMatricesAlpha.push_back(newExtrapolatedErrorMatrixAlpha);
@@ -1287,16 +1297,41 @@ std::tuple<arma::mat, arma::mat, arma::mat, arma::mat, arma::mat, arma::mat, arm
       queueSize -= 1;
     }
     
+    // Logging information
+    if (consoleLog) {
+      std::cout << "Density matrices queue" << std::endl;
+      for (int i = 0; i < queueSize; i += 1) {
+        kPrevDensityMatricesAlpha[i].print("kPrevDensityMatricesAlpha " + std::to_string(i));
+      }
+      for (int i = 0; i < queueSize; i += 1) {
+        kPrevDensityMatricesBeta[i].print("kPrevDensityMatricesBeta " + std::to_string(i));
+      }
+      std::cout << "Fock matrices queue" << std::endl;
+      for (int i = 0; i < queueSize; i += 1) {
+        kPrevFockMatricesAlpha[i].print("kPrevFockMatricesAlpha " + std::to_string(i));
+      }
+      for (int i = 0; i < queueSize; i += 1) {
+        kPrevFockMatricesBeta[i].print("kPrevFockMatricesBeta " + std::to_string(i));
+      }
+      std::cout << "Error matrices queue" << std::endl;
+      for (int i = 0; i < queueSize; i += 1) {
+        kPrevErrorMatricesAlpha[i].print("kPrevErrorMatricesAlpha " + std::to_string(i));
+      }
+      for (int i = 0; i < queueSize; i += 1) {
+        kPrevErrorMatricesBeta[i].print("kPrevErrorMatricesBeta " + std::to_string(i));
+      }
+    }
+
     // Evaluate total energy
     totalEnergyOld = totalE;
     totalE = totalEnergy(
-      newExtrapolatedFockMatrixAlpha,
-      newExtrapolatedFockMatrixBeta,
+      kPrevFockMatricesAlpha.back(),
+      kPrevFockMatricesBeta.back(),
       hCoreMatrix,
       hCoreMatrix,
-      newExtrapolatedDensityMatrixAlpha,
-      newExtrapolatedDensityMatrixBeta
-    );
+      kPrevDensityMatricesAlpha.back(),
+      kPrevDensityMatricesBeta.back()
+    );    
 
     // Logging information
     if (consoleLog) {
@@ -1311,9 +1346,9 @@ std::tuple<arma::mat, arma::mat, arma::mat, arma::mat, arma::mat, arma::mat, arm
       arma::mat, arma::mat, 
       arma::mat, arma::mat, 
       arma::vec, arma::vec> result = std::make_tuple(
-        newExtrapolatedFockMatrixAlpha, newExtrapolatedFockMatrixBeta,
-        newExtrapolatedDensityMatrixAlpha, newExtrapolatedDensityMatrixBeta,
-        newExtrapolatedDensityMatrixAlpha, newExtrapolatedDensityMatrixBeta,
+        kPrevFockMatricesAlpha.back(), kPrevFockMatricesBeta.back(),
+        kPrevDensityMatricesAlpha.back(), kPrevDensityMatricesBeta.back(),
+        kPrevMolOrbitalCoeffMatricesAlpha.back(), kPrevMolOrbitalCoeffMatricesBeta.back(),
         epsilonAlpha, epsilonBeta
       );
   return result;
@@ -1522,4 +1557,79 @@ arma::mat Molecule::energyDerivative(
   arma::mat result = overlapSummationTerm + gammaSummationTerm + nuclearRepulsionEnergyPositionDerivative;
 
   return result;
+}
+
+arma::mat Molecule::energyDerivative(arma::mat densityAlphaMatrix, arma::mat densityBetaMatrix) {
+  arma::mat moleculeOverlapMatrixPositionDerivative = overlapMatrixPositionDerivative();
+  arma::mat moleculeGammaMatrixPositionDerivative = gammaMatrixPositionDerivative();
+  arma::mat moleculeNuclearRepulsionDerivative = nuclearRepulsionEnergyPositionDerivative();
+  arma::mat moleculeXCoefficientMatrix = xCoefficientMatrix(densityAlphaMatrix, densityBetaMatrix);
+  arma::mat moleculeYCoefficientMatrix = yCoefficientMatrix(densityAlphaMatrix, densityBetaMatrix);
+
+  arma::mat energyGradient = energyDerivative(
+    moleculeOverlapMatrixPositionDerivative,
+    moleculeGammaMatrixPositionDerivative,
+    moleculeXCoefficientMatrix,
+    moleculeYCoefficientMatrix,
+    moleculeNuclearRepulsionDerivative
+  );
+
+  return energyGradient;
+}
+
+double Molecule::totalEnergy() {
+  // Compute necessary input matrices for DIIS algorithm
+  arma::mat overlapMat = overlapMatrix();
+  arma::mat gammaMat = gammaMatrix();
+  arma::mat hCoreMat = hCoreMatrix(
+    gammaMat,
+    overlapMat
+  );
+  // Run DIIS algorithm
+    std::tuple<arma::mat, arma::mat, 
+               arma::mat, arma::mat,
+               arma::mat, arma::mat, 
+               arma::vec, arma::vec> result = directInversionIterativeSubspaceAlogrithm(
+                gammaMat, 
+                overlapMat,
+                hCoreMat,
+                numberAlphaElectrons,
+                numberBetaElectrons,
+                7,
+                false,
+                1.0
+    );
+    arma::mat fockAlphaMatrix = std::get<0>(result);
+    arma::mat fockBetaMatrix = std::get<1>(result);
+    arma::mat densityAlphaMatrix = std::get<2>(result);
+    arma::mat densityBetaMatrix = std::get<3>(result);
+    arma::mat orbitalCoefficientsAlpha = std::get<4>(result);
+    arma::mat orbitalCoefficientsBeta = std::get<5>(result);
+
+  // Calculate total energy
+  double totalE = totalEnergy(
+                    fockAlphaMatrix,
+                    fockBetaMatrix,
+                    hCoreMat,
+                    hCoreMat,
+                    densityAlphaMatrix,
+                    densityBetaMatrix
+                  );
+  return totalE;
+}
+
+arma::mat Molecule::geometryOptimizer(std::string optimizer) {
+  if (optimizer == "steepest_descent") {
+
+  } else {
+    throw std::invalid_argument(optimizer + " is not of the valid optimizer choices: {\"steepest_descent\",}");
+  }
+}
+
+arma::mat Molecule::steepestDescentGeometryOptimizer() {
+  // Evaulate forces on initial cooridantes (CNDO/2 Energy Derivative)
+
+  // While the the norm of the gradient is above some tolerance
+  // Update positions from applied forces
+  // Calculate new forces
 }

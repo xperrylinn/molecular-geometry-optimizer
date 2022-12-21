@@ -14,16 +14,15 @@ int main(int argc, char** argv) {
     int q = std::atoi(argv[3]);
     
     // Run the calculation
-    Molecule molecule = moleculeFromTxt(filePath, allowed_atoms);
-    // arma::mat moleculeOverlapMatrix = molecule.overlapMatrix();
-    arma::mat moleculeOverlapMatrix(molecule.numberAtomicBasisFunctions, molecule.numberAtomicBasisFunctions, arma::fill::ones);
+    Molecule molecule = moleculeFromTxt(filePath, allowed_atoms, p, q);
+    arma::mat moleculeOverlapMatrix = molecule.overlapMatrix();
     arma::mat moleculeGammaMatrix = molecule.gammaMatrix();
     arma::mat hCoreMatrix = molecule.hCoreMatrix(
       moleculeGammaMatrix,
       moleculeOverlapMatrix
     );
     std::tuple<arma::mat, arma::mat, 
-               arma::mat, arma::mat, 
+               arma::mat, arma::mat,
                arma::mat, arma::mat, 
                arma::vec, arma::vec> result = molecule.directInversionIterativeSubspaceAlogrithm(
                 moleculeGammaMatrix, 
@@ -31,9 +30,9 @@ int main(int argc, char** argv) {
                 hCoreMatrix,
                 p,
                 q,
-                1.0,
                 7,
-                true
+                true,
+                1.0
     );
     arma::mat molculeFockAlphaMatrix = std::get<0>(result);
     arma::mat moleculeFockBetaMatrix = std::get<1>(result);
@@ -54,7 +53,7 @@ int main(int argc, char** argv) {
       moleculeDensityBetaMatrix
     );
     std::cout << "Electronic energy: " << moleculeElectronicEnergy << " eV" << std::endl;
-
+    std::cout << "Testing totalEnergy(): " << molecule.totalEnergy() << std::endl;
     double moleculeTotalEnergy = molecule.totalEnergy(
       molculeFockAlphaMatrix,
       moleculeFockBetaMatrix,
@@ -64,8 +63,6 @@ int main(int argc, char** argv) {
       moleculeDensityBetaMatrix
     );
     std::cout << "Total energy: " << moleculeTotalEnergy << " eV" << std::endl;
-
-    std::cout << "Homework 5" << std::endl;
 
     arma::mat moleculeOverlapMatrixPositionDerivative = molecule.overlapMatrixPositionDerivative();
     // moleculeOverlapMatrixPositionDerivative.print("OV_RA");
