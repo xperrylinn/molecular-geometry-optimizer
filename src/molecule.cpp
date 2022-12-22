@@ -1586,18 +1586,29 @@ double Molecule::totalEnergy() {
     overlapMat
   );
   // Run DIIS algorithm
+    // std::tuple<arma::mat, arma::mat, 
+    //            arma::mat, arma::mat,
+    //            arma::mat, arma::mat, 
+    //            arma::vec, arma::vec> result = directInversionIterativeSubspaceAlogrithm(
+    //             gammaMat, 
+    //             overlapMat,
+    //             hCoreMat,
+    //             numberAlphaElectrons,
+    //             numberBetaElectrons,
+    //             7,
+    //             false,
+    //             1.0
+    // );
     std::tuple<arma::mat, arma::mat, 
                arma::mat, arma::mat,
                arma::mat, arma::mat, 
-               arma::vec, arma::vec> result = directInversionIterativeSubspaceAlogrithm(
+               arma::vec, arma::vec> result = selfConsistentFieldAlgorithm(
                 gammaMat, 
                 overlapMat,
                 hCoreMat,
                 numberAlphaElectrons,
                 numberBetaElectrons,
-                7,
-                false,
-                1.0
+                false
     );
     arma::mat fockAlphaMatrix = std::get<0>(result);
     arma::mat fockBetaMatrix = std::get<1>(result);
@@ -1618,18 +1629,101 @@ double Molecule::totalEnergy() {
   return totalE;
 }
 
-arma::mat Molecule::geometryOptimizer(std::string optimizer) {
-  if (optimizer == "steepest_descent") {
+arma::mat Molecule::steepestDescentGeometryOptimizer(double stepSize, double tolerance, bool logging=true) {
+  // Setup
+  double previousEnergy, currentEnergy;
+  arma::mat previousCoordinates;
+  arma::mat energyGradient;
 
-  } else {
-    throw std::invalid_argument(optimizer + " is not of the valid optimizer choices: {\"steepest_descent\",}");
-  }
-}
+  std::tuple<arma::mat, arma::mat, arma::mat, arma::mat, arma::mat, arma::mat, arma::vec, arma::vec> diisResult;
 
-arma::mat Molecule::steepestDescentGeometryOptimizer() {
+  arma::mat overlapMat;
+  arma::mat gammaMat;
+  arma::mat hCoreMat;
+  arma::mat fockAlphaMatrix;
+  arma::mat fockBetaMatrix;
+  arma::mat densityAlphaMatrix;
+  arma::mat densityBetaMatrix;
+  arma::mat orbitalCoefficientsAlpha;
+  arma::mat orbitalCoefficientsBeta;
+
+  // Initialize optimization data
+  previousEnergy = totalEnergy();
+  overlapMat = overlapMatrix();
+  gammaMat = gammaMatrix();
+  hCoreMat = hCoreMatrix(
+    gammaMat,
+    overlapMat
+  );
+  diisResult = selfConsistentFieldAlgorithm(
+    gammaMat, 
+    overlapMat,
+    hCoreMat,
+    numberAlphaElectrons,
+    numberBetaElectrons,
+    false
+  );
+  fockAlphaMatrix = std::get<0>(diisResult);
+  fockBetaMatrix = std::get<1>(diisResult);
+  densityAlphaMatrix = std::get<2>(diisResult);
+  densityBetaMatrix = std::get<3>(diisResult);
+  orbitalCoefficientsAlpha = std::get<4>(diisResult);
+  orbitalCoefficientsBeta = std::get<5>(diisResult);
+
   // Evaulate forces on initial cooridantes (CNDO/2 Energy Derivative)
+  energyGradient = energyDerivative(densityAlphaMatrix, densityBetaMatrix).t();
 
   // While the the norm of the gradient is above some tolerance
-  // Update positions from applied forces
-  // Calculate new forces
+  int iterationCount = 0;
+  // while (arma::norm(energyGradient, "fro") > tolerance && iterationCount < 6) {
+  while (arma::norm(energyGradient, "fro") > tolerance) {
+    // Calculate new coordinates
+    previousCoordinates = coordinates;
+    coordinates = previousCoordinates - stepSize * energyGradient / arma::norm(energyGradient, 2);
+    currentEnergy = totalEnergy();
+
+    // Logging ingormation
+    if (logging) {
+      std::cout << "iterationCount: " << iterationCount << ", previousEnergy: " << previousEnergy << ", currentEnergy: " << currentEnergy << ", stepSize: " << stepSize << std::endl;
+      previousCoordinates.print("previous coordinates:");
+      energyGradient.print("energy gradient:");
+      coordinates.print("new coordinates from applied forces:");
+    } 
+    if (currentEnergy < previousEnergy) { // Productive step, increase step size
+      // Update energy to newly accepted lower energy
+      previousEnergy = currentEnergy;
+
+      // Calculate a new gradient
+      overlapMat = overlapMatrix();
+      gammaMat = gammaMatrix();
+      hCoreMat = hCoreMatrix(
+        gammaMat,
+        overlapMat
+      );
+      diisResult = selfConsistentFieldAlgorithm(
+        gammaMat, 
+        overlapMat,
+        hCoreMat,
+        numberAlphaElectrons,
+        numberBetaElectrons,
+        false
+      );
+        densityAlphaMatrix = std::get<2>(diisResult);
+        densityBetaMatrix = std::get<3>(diisResult);
+
+        energyGradient = energyDerivative(densityAlphaMatrix, densityBetaMatrix).t();
+
+        // Increase setpsize as step was productive
+        stepSize *= 1.25;
+
+    } else {  // Counter productive step, decrease step size
+      // Restore coordinates to previous state as step was not productive in lower energy
+      coordinates = previousCoordinates;
+      
+      // Descreate step size
+      stepSize /= 2;
+    }
+    iterationCount += 1;
+  }
+  return coordinates;
 }

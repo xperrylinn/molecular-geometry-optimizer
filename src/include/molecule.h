@@ -200,7 +200,7 @@ class Molecule {
       );
       arma::mat energyDerivative(arma::mat densityAlphaMatrix, arma::mat densityBetaMatrix);
       arma::mat geometryOptimizer(std::string optimizer);
-      arma::mat steepestDescentGeometryOptimizer();
+      arma::mat steepestDescentGeometryOptimizer(double stepSize, double tolerance, bool logging);
 };
 
 Molecule moleculeFromTxt(std::string rel_file_path, std::unordered_set<std::string> allowed_symbols, int p, int q);
