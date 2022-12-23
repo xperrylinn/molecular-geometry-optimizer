@@ -78,7 +78,10 @@ int main(int argc, char** argv) {
     molecule.energyDerivative(moleculeDensityAlphaMatrix, moleculeDensityBetaMatrix).print("energyDerivative");
 
     molecule.coordinates.print("coordinates before opt.");
-    molecule.steepestDescentGeometryOptimizer(0.3, 1e-2, true).print("coordinates after opt.");
+
+    std::string animationFilePath = filePath; 
+    animationFilePath.replace(animationFilePath.length() - 3, animationFilePath.length(), "xyz");
+    molecule.steepestDescentGeometryOptimizer(0.75, 1e-2, true, animationFilePath).print("coordinates after opt.");
 
     return 0;
 }

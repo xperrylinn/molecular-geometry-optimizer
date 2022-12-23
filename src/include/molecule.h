@@ -25,6 +25,7 @@ class Molecule {
 
       // Constants
       double electronVoltsToAtomicUnitsConversionFactor = 27.211;
+      double atomicNumberUnitsToAngstromConversionFactor = 0.529177249;
 
       /* 
       Constructors 
@@ -201,7 +202,7 @@ class Molecule {
       );
       arma::mat energyDerivative(arma::mat densityAlphaMatrix, arma::mat densityBetaMatrix);
       arma::mat geometryOptimizer(std::string optimizer);
-      arma::mat steepestDescentGeometryOptimizer(double stepSize, double tolerance, bool logging);
+      arma::mat steepestDescentGeometryOptimizer(double stepSize, double tolerance, bool logging, std::string animationPath);
       void xyzCoordinatesToStream(std::ofstream& ofs, std::string commentLine);
 };
 

@@ -1,0 +1,306 @@
+Hello World!
+gamma
+   21.0778   15.4488
+   15.4488   21.0778
+Overlap
+   1.0000   0.6559
+   0.6559   1.0000
+H_core
+  -33.1637   -5.9035
+   -5.9035  -33.1637
+p = 1 q = 1
+Iteration: 0
+Fa
+  -33.1637   -5.9035
+   -5.9035  -33.1637
+Fb
+  -33.1637   -5.9035
+   -5.9035  -33.1637
+Ca
+   0.7071  -0.7071
+   0.7071   0.7071
+Cb
+   0.7071  -0.7071
+   0.7071   0.7071
+Ea
+  -39.0672
+  -27.2601
+Eb
+  -39.0672
+  -27.2601
+Pa_old
+        0        0
+        0        0
+Pb_old
+        0        0
+        0        0
+Pa_new
+   0.5000   0.5000
+   0.5000   0.5000
+Pb_new
+   0.5000   0.5000
+   0.5000   0.5000
+P_t
+   1.0000
+   1.0000
+Ga
+        0        0
+        0        0
+Gb
+        0        0
+        0        0
+Iteration: 1
+Fa
+   -7.1760  -13.6279
+  -13.6279   -7.1760
+Fb
+   -7.1760  -13.6279
+  -13.6279   -7.1760
+Ca
+   0.7071  -0.7071
+   0.7071   0.7071
+Cb
+   0.7071  -0.7071
+   0.7071   0.7071
+Ea
+  -20.8039
+    6.4519
+Eb
+  -20.8039
+    6.4519
+Pa_old
+   0.5000   0.5000
+   0.5000   0.5000
+Pb_old
+   0.5000   0.5000
+   0.5000   0.5000
+Pa_new
+   0.5000   0.5000
+   0.5000   0.5000
+Pb_new
+   0.5000   0.5000
+   0.5000   0.5000
+P_t
+   1.0000
+   1.0000
+Ga
+   25.9877   -7.7244
+   -7.7244   25.9877
+Gb
+   25.9877   -7.7244
+   -7.7244   25.9877
+Iteration: 2
+Fa
+   -7.1760  -13.6279
+  -13.6279   -7.1760
+Fb
+   -7.1760  -13.6279
+  -13.6279   -7.1760
+Ca
+   0.7071  -0.7071
+   0.7071   0.7071
+Cb
+   0.7071  -0.7071
+   0.7071   0.7071
+Ea
+  -20.8039
+    6.4519
+Eb
+  -20.8039
+    6.4519
+Pa_old
+   0.5000   0.5000
+   0.5000   0.5000
+Pb_old
+   0.5000   0.5000
+   0.5000   0.5000
+Pa_new
+   0.5000   0.5000
+   0.5000   0.5000
+Pb_new
+   0.5000   0.5000
+   0.5000   0.5000
+P_t
+   1.0000
+   1.0000
+Ga
+   25.9877   -7.7244
+   -7.7244   25.9877
+Gb
+   25.9877   -7.7244
+   -7.7244   25.9877
+Nuclear Repulsion Energy: 19.3022 eV
+Electronic energy: -59.8711 eV
+Testing totalEnergy(): -40.5689
+Total energy: -40.5689 eV
+energyDerivative
+  -0.6450   0.6450
+        0        0
+        0        0
+coordinates before opt.
+        0        0        0
+   1.4097        0        0
+YO: data/H2_test.xyz
+iterationCount: 0, previousEnergy: -40.568941, currentEnergy: 4.740744, stepSize: 0.750000
+previous coordinates:
+        0        0        0
+   1.4097        0        0
+energy gradient:
+  -0.6450        0        0
+   0.6450        0        0
+new coordinates from applied forces:
+   0.5303        0        0
+   0.8794        0        0
+iterationCount: 1, previousEnergy: -40.568941, currentEnergy: -36.490435, stepSize: 0.375000
+previous coordinates:
+        0        0        0
+   1.4097        0        0
+energy gradient:
+  -0.6450        0        0
+   0.6450        0        0
+new coordinates from applied forces:
+   0.2652        0        0
+   1.1446        0        0
+iterationCount: 2, previousEnergy: -40.568941, currentEnergy: -39.929262, stepSize: 0.187500
+previous coordinates:
+        0        0        0
+   1.4097        0        0
+energy gradient:
+  -0.6450        0        0
+   0.6450        0        0
+new coordinates from applied forces:
+   0.1326        0        0
+   1.2772        0        0
+iterationCount: 3, previousEnergy: -40.568941, currentEnergy: -40.477973, stepSize: 0.093750
+previous coordinates:
+        0        0        0
+   1.4097        0        0
+energy gradient:
+  -0.6450        0        0
+   0.6450        0        0
+new coordinates from applied forces:
+   0.0663        0        0
+   1.3434        0        0
+iterationCount: 4, previousEnergy: -40.568941, currentEnergy: -40.570405, stepSize: 0.046875
+previous coordinates:
+        0        0        0
+   1.4097        0        0
+energy gradient:
+  -0.6450        0        0
+   0.6450        0        0
+new coordinates from applied forces:
+   0.0331        0        0
+   1.3766        0        0
+iterationCount: 5, previousEnergy: -40.570405, currentEnergy: -40.555871, stepSize: 0.058594
+previous coordinates:
+   0.0331        0        0
+   1.3766        0        0
+energy gradient:
+   0.6415        0        0
+  -0.6415        0        0
+new coordinates from applied forces:
+  -0.0083        0        0
+   1.4180        0        0
+iterationCount: 6, previousEnergy: -40.570405, currentEnergy: -40.579399, stepSize: 0.029297
+previous coordinates:
+   0.0331        0        0
+   1.3766        0        0
+energy gradient:
+   0.6415        0        0
+  -0.6415        0        0
+new coordinates from applied forces:
+   0.0124        0        0
+   1.3973        0        0
+iterationCount: 7, previousEnergy: -40.579399, currentEnergy: -40.562606, stepSize: 0.036621
+previous coordinates:
+   0.0124        0        0
+   1.3973        0        0
+energy gradient:
+  -0.1909        0        0
+   0.1909        0        0
+new coordinates from applied forces:
+   0.0383        0        0
+   1.3714        0        0
+iterationCount: 8, previousEnergy: -40.579399, currentEnergy: -40.577838, stepSize: 0.018311
+previous coordinates:
+   0.0124        0        0
+   1.3973        0        0
+energy gradient:
+  -0.1909        0        0
+   0.1909        0        0
+new coordinates from applied forces:
+   0.0254        0        0
+   1.3844        0        0
+iterationCount: 9, previousEnergy: -40.579399, currentEnergy: -40.580265, stepSize: 0.009155
+previous coordinates:
+   0.0124        0        0
+   1.3973        0        0
+energy gradient:
+  -0.1909        0        0
+   0.1909        0        0
+new coordinates from applied forces:
+   0.0189        0        0
+   1.3908        0        0
+iterationCount: 10, previousEnergy: -40.580265, currentEnergy: -40.578682, stepSize: 0.011444
+previous coordinates:
+   0.0189        0        0
+   1.3908        0        0
+energy gradient:
+   0.0587        0        0
+  -0.0587        0        0
+new coordinates from applied forces:
+   0.0108        0        0
+   1.3989        0        0
+iterationCount: 11, previousEnergy: -40.580265, currentEnergy: -40.580102, stepSize: 0.005722
+previous coordinates:
+   0.0189        0        0
+   1.3908        0        0
+energy gradient:
+   0.0587        0        0
+  -0.0587        0        0
+new coordinates from applied forces:
+   0.0149        0        0
+   1.3949        0        0
+iterationCount: 12, previousEnergy: -40.580265, currentEnergy: -40.580342, stepSize: 0.002861
+previous coordinates:
+   0.0189        0        0
+   1.3908        0        0
+energy gradient:
+   0.0587        0        0
+  -0.0587        0        0
+new coordinates from applied forces:
+   0.0169        0        0
+   1.3929        0        0
+iterationCount: 13, previousEnergy: -40.580342, currentEnergy: -40.580196, stepSize: 0.003576
+previous coordinates:
+   0.0169        0        0
+   1.3929        0        0
+energy gradient:
+  -0.0203        0        0
+   0.0203        0        0
+new coordinates from applied forces:
+   0.0194        0        0
+   1.3903        0        0
+iterationCount: 14, previousEnergy: -40.580342, currentEnergy: -40.580331, stepSize: 0.001788
+previous coordinates:
+   0.0169        0        0
+   1.3929        0        0
+energy gradient:
+  -0.0203        0        0
+   0.0203        0        0
+new coordinates from applied forces:
+   0.0181        0        0
+   1.3916        0        0
+iterationCount: 15, previousEnergy: -40.580342, currentEnergy: -40.580352, stepSize: 0.000894
+previous coordinates:
+   0.0169        0        0
+   1.3929        0        0
+energy gradient:
+  -0.0203        0        0
+   0.0203        0        0
+new coordinates from applied forces:
+   0.0175        0        0
+   1.3922        0        0
+coordinates after opt.
+   0.0175        0        0
+   1.3922        0        0

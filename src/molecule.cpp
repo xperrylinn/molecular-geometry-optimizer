@@ -1645,14 +1645,19 @@ double Molecule::totalEnergy() {
   return totalE;
 }
 
-arma::mat Molecule::steepestDescentGeometryOptimizer(double stepSize, double tolerance, bool logging=true) {
+arma::mat Molecule::steepestDescentGeometryOptimizer(
+  double stepSize, 
+  double tolerance, 
+  bool logging=true,
+  std::string animationPath=""
+  ) {
   
   // Create file stream
   std::ofstream coordsOFStream;
-  coordsOFStream.open("data/animation.xyz", std::ofstream::out);
+  coordsOFStream.open(animationPath, std::ofstream::out);
 
   // Define data structures
-  double previousEnergy, currentEnergy;
+  double previousEnergy, currentEnergy, originalStepSize;
   arma::mat previousCoordinates;
   arma::mat energyGradient;
 
@@ -1671,6 +1676,7 @@ arma::mat Molecule::steepestDescentGeometryOptimizer(double stepSize, double tol
   std::string commentLine;
 
   // Initialize optimization data
+  originalStepSize = stepSize;
   previousEnergy = totalEnergy();
   overlapMat = overlapMatrix();
   gammaMat = gammaMatrix();
@@ -1696,9 +1702,12 @@ arma::mat Molecule::steepestDescentGeometryOptimizer(double stepSize, double tol
   // Evaulate forces on initial cooridantes (CNDO/2 Energy Derivative)
   energyGradient = energyDerivative(densityAlphaMatrix, densityBetaMatrix).t();
 
+  // Write XYZ coordiantes to file stream
+  xyzCoordinatesToStream(coordsOFStream, "initial configuration before beginning optimization");
+
   // While the the norm of the gradient is above some tolerance
   int iterationCount = 0;
-  while (arma::norm(energyGradient, "fro") > tolerance) {
+  while (arma::norm(energyGradient, "fro") > tolerance && iterationCount < 30) {
     // Calculate new coordinates
     previousCoordinates = coordinates;
     coordinates = previousCoordinates - stepSize * energyGradient / arma::norm(energyGradient, 2);
@@ -1761,6 +1770,11 @@ arma::mat Molecule::steepestDescentGeometryOptimizer(double stepSize, double tol
       
       // Descreate step size
       stepSize /= 2;
+
+      // Check if step size is getting too small, if soo reset
+      if (stepSize < 1e-5) {
+        stepSize = originalStepSize / 2;
+      }
     }
     iterationCount += 1;
   }
@@ -1775,6 +1789,7 @@ void Molecule::xyzCoordinatesToStream(std::ofstream& ofs, std::string commentLin
   ofs << numberOfAtoms << std::endl;
   ofs << commentLine << std::endl;
   for (int i = 0; i < numberOfAtoms; i += 1) {
-    ofs << atomicNumbers[i] << " " << coordinates.at(i, 0) << " " << coordinates.at(i, 1) << " " << coordinates.at(i, 2) << std::endl;
+    // Convert coordinate  units from atomic units to angstrom
+    ofs << atomicNumbers[i] << " " << coordinates.at(i, 0) * atomicNumberUnitsToAngstromConversionFactor << " " << coordinates.at(i, 1) * atomicNumberUnitsToAngstromConversionFactor << " " << coordinates.at(i, 2) * atomicNumberUnitsToAngstromConversionFactor << std::endl;
   }
 }
