@@ -21,6 +21,7 @@ class Molecule {
       std::map<int, std::map<int, double>> ionizationAndElectronAffinityEnergyTermMap;
       std::map<int, int> atomicNumberBondingParameterMap;
       std::map<int, int> valenceAtomicNumberMap;
+      std::map<int, std::string> atomicNumberSymbolMap;
 
       // Constants
       double electronVoltsToAtomicUnitsConversionFactor = 27.211;
@@ -201,6 +202,7 @@ class Molecule {
       arma::mat energyDerivative(arma::mat densityAlphaMatrix, arma::mat densityBetaMatrix);
       arma::mat geometryOptimizer(std::string optimizer);
       arma::mat steepestDescentGeometryOptimizer(double stepSize, double tolerance, bool logging);
+      void xyzCoordinatesToStream(std::ofstream& ofs, std::string commentLine);
 };
 
 Molecule moleculeFromTxt(std::string rel_file_path, std::unordered_set<std::string> allowed_symbols, int p, int q);

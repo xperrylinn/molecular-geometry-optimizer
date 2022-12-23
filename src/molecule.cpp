@@ -1,5 +1,6 @@
 #include "include/molecule.h"
 #include <iostream>
+#include <ostream>
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -210,7 +211,22 @@ Molecule::Molecule(arma::mat coords, arma::ivec atomicNums, int p, int q) {
     {7, 5}, 
     {8, 6},
     {9, 7},
-    };
+  };
+
+  // Create atomic number to atomic symbol map
+  atomicNumberSymbolMap = {
+    {1, "H"},
+    {2, "He"},
+    {3, "Li"},
+    {4, "Be"},
+    {5, "B"},
+    {6, "C"},
+    {7, "N"},
+    {8, "O"},
+    {9, "F"},
+    {10, "Ne"},
+  };
+
 }
 
 arma::imat Molecule::constructBasisFunctions() {
@@ -1630,7 +1646,12 @@ double Molecule::totalEnergy() {
 }
 
 arma::mat Molecule::steepestDescentGeometryOptimizer(double stepSize, double tolerance, bool logging=true) {
-  // Setup
+  
+  // Create file stream
+  std::ofstream coordsOFStream;
+  coordsOFStream.open("data/animation.xyz", std::ofstream::out);
+
+  // Define data structures
   double previousEnergy, currentEnergy;
   arma::mat previousCoordinates;
   arma::mat energyGradient;
@@ -1646,6 +1667,8 @@ arma::mat Molecule::steepestDescentGeometryOptimizer(double stepSize, double tol
   arma::mat densityBetaMatrix;
   arma::mat orbitalCoefficientsAlpha;
   arma::mat orbitalCoefficientsBeta;
+
+  std::string commentLine;
 
   // Initialize optimization data
   previousEnergy = totalEnergy();
@@ -1675,7 +1698,6 @@ arma::mat Molecule::steepestDescentGeometryOptimizer(double stepSize, double tol
 
   // While the the norm of the gradient is above some tolerance
   int iterationCount = 0;
-  // while (arma::norm(energyGradient, "fro") > tolerance && iterationCount < 6) {
   while (arma::norm(energyGradient, "fro") > tolerance) {
     // Calculate new coordinates
     previousCoordinates = coordinates;
@@ -1684,16 +1706,25 @@ arma::mat Molecule::steepestDescentGeometryOptimizer(double stepSize, double tol
 
     // Logging ingormation
     if (logging) {
-      std::cout << "iterationCount: " << iterationCount << ", previousEnergy: " << previousEnergy << ", currentEnergy: " << currentEnergy << ", stepSize: " << stepSize << std::endl;
+      commentLine = \
+        "iterationCount: " + std::to_string(iterationCount) + \
+        ", previousEnergy: " + std::to_string(previousEnergy) + \
+        ", currentEnergy: " + std::to_string(currentEnergy) + \
+        ", stepSize: " + std::to_string(stepSize);
+      std::cout << commentLine << std::endl;
       previousCoordinates.print("previous coordinates:");
       energyGradient.print("energy gradient:");
       coordinates.print("new coordinates from applied forces:");
     } 
+
+    // Write XYZ coordiantes to file stream
+    xyzCoordinatesToStream(coordsOFStream, commentLine);
+
     if (currentEnergy < previousEnergy) { // Productive step, increase step size
       // Update energy to newly accepted lower energy
       previousEnergy = currentEnergy;
 
-      // Calculate a new gradient
+      // Calculate a energy and then a new gradient
       overlapMat = overlapMatrix();
       gammaMat = gammaMatrix();
       hCoreMat = hCoreMatrix(
@@ -1708,13 +1739,21 @@ arma::mat Molecule::steepestDescentGeometryOptimizer(double stepSize, double tol
         numberBetaElectrons,
         false
       );
-        densityAlphaMatrix = std::get<2>(diisResult);
-        densityBetaMatrix = std::get<3>(diisResult);
+      densityAlphaMatrix = std::get<2>(diisResult);
+      densityBetaMatrix = std::get<3>(diisResult);
 
-        energyGradient = energyDerivative(densityAlphaMatrix, densityBetaMatrix).t();
+      energyGradient = energyDerivative(densityAlphaMatrix, densityBetaMatrix).t();
 
-        // Increase setpsize as step was productive
-        stepSize *= 1.25;
+      // Increase setpsize as step was productive
+      stepSize *= 1.25;
+
+      // Write XYZ coordiantes to file stream
+      commentLine = \
+        "iterationCount: " + std::to_string(iterationCount) + \
+        ", previousEnergy: " + std::to_string(previousEnergy) + \
+        ", currentEnergy: " + std::to_string(currentEnergy) + \
+        ", stepSize: " + std::to_string(stepSize);
+      xyzCoordinatesToStream(coordsOFStream, commentLine);
 
     } else {  // Counter productive step, decrease step size
       // Restore coordinates to previous state as step was not productive in lower energy
@@ -1725,5 +1764,17 @@ arma::mat Molecule::steepestDescentGeometryOptimizer(double stepSize, double tol
     }
     iterationCount += 1;
   }
+
+  // Close the file stream
+  coordsOFStream.close();
+
   return coordinates;
+}
+
+void Molecule::xyzCoordinatesToStream(std::ofstream& ofs, std::string commentLine) {
+  ofs << numberOfAtoms << std::endl;
+  ofs << commentLine << std::endl;
+  for (int i = 0; i < numberOfAtoms; i += 1) {
+    ofs << atomicNumbers[i] << " " << coordinates.at(i, 0) << " " << coordinates.at(i, 1) << " " << coordinates.at(i, 2) << std::endl;
+  }
 }

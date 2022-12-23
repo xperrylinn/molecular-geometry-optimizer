@@ -21,18 +21,29 @@ int main(int argc, char** argv) {
       moleculeGammaMatrix,
       moleculeOverlapMatrix
     );
-    std::tuple<arma::mat, arma::mat, 
+    // std::tuple<arma::mat, arma::mat, 
+    //            arma::mat, arma::mat,
+    //            arma::mat, arma::mat, 
+    //            arma::vec, arma::vec> result = molecule.directInversionIterativeSubspaceAlogrithm(
+    //             moleculeGammaMatrix, 
+    //             moleculeOverlapMatrix,
+    //             hCoreMatrix,
+    //             p,
+    //             q,
+    //             7,
+    //             true,
+    //             1.0
+    // );
+      std::tuple<arma::mat, arma::mat, 
                arma::mat, arma::mat,
                arma::mat, arma::mat, 
-               arma::vec, arma::vec> result = molecule.directInversionIterativeSubspaceAlogrithm(
+               arma::vec, arma::vec> result = molecule.selfConsistentFieldAlgorithm(
                 moleculeGammaMatrix, 
                 moleculeOverlapMatrix,
                 hCoreMatrix,
                 p,
                 q,
-                7,
-                true,
-                1.0
+                true
     );
     arma::mat molculeFockAlphaMatrix = std::get<0>(result);
     arma::mat moleculeFockBetaMatrix = std::get<1>(result);
