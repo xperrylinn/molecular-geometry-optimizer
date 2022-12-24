@@ -21,30 +21,30 @@ int main(int argc, char** argv) {
       moleculeGammaMatrix,
       moleculeOverlapMatrix
     );
-    // std::tuple<arma::mat, arma::mat, 
-    //            arma::mat, arma::mat,
-    //            arma::mat, arma::mat, 
-    //            arma::vec, arma::vec> result = molecule.directInversionIterativeSubspaceAlogrithm(
-    //             moleculeGammaMatrix, 
-    //             moleculeOverlapMatrix,
-    //             hCoreMatrix,
-    //             p,
-    //             q,
-    //             7,
-    //             true,
-    //             1.0
-    // );
-      std::tuple<arma::mat, arma::mat, 
+    std::tuple<arma::mat, arma::mat, 
                arma::mat, arma::mat,
                arma::mat, arma::mat, 
-               arma::vec, arma::vec> result = molecule.selfConsistentFieldAlgorithm(
+               arma::vec, arma::vec> result = molecule.directInversionIterativeSubspaceAlogrithm(
                 moleculeGammaMatrix, 
                 moleculeOverlapMatrix,
                 hCoreMatrix,
                 p,
                 q,
-                true
+                7,
+                true,
+                1.0
     );
+    //   std::tuple<arma::mat, arma::mat, 
+    //            arma::mat, arma::mat,
+    //            arma::mat, arma::mat, 
+    //            arma::vec, arma::vec> result = molecule.selfConsistentFieldAlgorithm(
+    //             moleculeGammaMatrix, 
+    //             moleculeOverlapMatrix,
+    //             hCoreMatrix,
+    //             p,
+    //             q,
+    //             true
+    // );
     arma::mat molculeFockAlphaMatrix = std::get<0>(result);
     arma::mat moleculeFockBetaMatrix = std::get<1>(result);
     arma::mat moleculeDensityAlphaMatrix = std::get<2>(result);
@@ -64,7 +64,7 @@ int main(int argc, char** argv) {
       moleculeDensityBetaMatrix
     );
     std::cout << "Electronic energy: " << moleculeElectronicEnergy << " eV" << std::endl;
-    std::cout << "Testing totalEnergy(): " << molecule.totalEnergy() << std::endl;
+    // std::cout << "Testing totalEnergy(): " << molecule.totalEnergy() << std::endl;
     double moleculeTotalEnergy = molecule.totalEnergy(
       molculeFockAlphaMatrix,
       moleculeFockBetaMatrix,
@@ -75,13 +75,13 @@ int main(int argc, char** argv) {
     );
     std::cout << "Total energy: " << moleculeTotalEnergy << " eV" << std::endl;
 
-    molecule.energyDerivative(moleculeDensityAlphaMatrix, moleculeDensityBetaMatrix).print("energyDerivative");
+    // molecule.energyDerivative(moleculeDensityAlphaMatrix, moleculeDensityBetaMatrix).print("energyDerivative");
 
-    molecule.coordinates.print("coordinates before opt.");
+    // molecule.coordinates.print("coordinates before opt.");
 
-    std::string animationFilePath = filePath; 
-    animationFilePath.replace(animationFilePath.length() - 3, animationFilePath.length(), "xyz");
-    molecule.steepestDescentGeometryOptimizer(0.75, 1e-2, true, animationFilePath).print("coordinates after opt.");
+    // std::string animationFilePath = filePath; 
+    // animationFilePath.replace(animationFilePath.length() - 3, animationFilePath.length(), "xyz");
+    // molecule.steepestDescentGeometryOptimizer(0.75, 1e-2, true, animationFilePath).print("coordinates after opt.");
 
     return 0;
 }

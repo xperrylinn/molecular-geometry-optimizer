@@ -1303,7 +1303,7 @@ std::tuple<arma::mat, arma::mat, arma::mat, arma::mat, arma::mat, arma::mat, arm
     kPrevFockMatricesAlpha.push_back(newExtrapolatedFockMatrixAlpha);
     kPrevFockMatricesBeta.push_back(newExtrapolatedFockMatrixBeta);
     queueSize += 1;
-    if (queueSize > numPrevIters) {
+    if (queueSize > numPrevIters || iterationCount == 0) {
       kPrevDensityMatricesAlpha.pop_front();
       kPrevDensityMatricesBeta.pop_front();
       kPrevErrorMatricesAlpha.pop_front();
@@ -1341,12 +1341,12 @@ std::tuple<arma::mat, arma::mat, arma::mat, arma::mat, arma::mat, arma::mat, arm
     // Evaluate total energy
     totalEnergyOld = totalE;
     totalE = totalEnergy(
-      kPrevFockMatricesAlpha.back(),
-      kPrevFockMatricesBeta.back(),
+      newExtrapolatedFockMatrixAlpha,
+      newExtrapolatedFockMatrixBeta,
       hCoreMatrix,
       hCoreMatrix,
-      kPrevDensityMatricesAlpha.back(),
-      kPrevDensityMatricesBeta.back()
+      newExtrapolatedDensityMatrixAlpha,
+      newExtrapolatedDensityMatrixBeta
     );    
 
     // Logging information
