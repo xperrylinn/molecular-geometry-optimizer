@@ -1041,7 +1041,7 @@ arma::mat Molecule::gammaMatrixPositionDerivative() {
   return gammaMat;
 }
         
-std::tuple<arma::mat, arma::mat, arma::mat, arma::mat, arma::mat, arma::mat, arma::vec, arma::vec> Molecule::selfConsistentFieldAlgorithm(
+std::tuple<arma::mat, arma::mat, arma::mat, arma::mat, arma::mat, arma::mat, arma::vec, arma::vec, int> Molecule::scfFixedPointIteration(
   arma::mat gammaMatrix,
   arma::mat overlapMatrix,
   arma::mat hCoreMatrix,
@@ -1151,24 +1151,23 @@ std::tuple<arma::mat, arma::mat, arma::mat, arma::mat, arma::mat, arma::mat, arm
       arma::mat, arma::mat, 
       arma::mat, arma::mat, 
       arma::mat, arma::mat, 
-      arma::vec, arma::vec> result = std::make_tuple(
+      arma::vec, arma::vec, int> result = std::make_tuple(
         fockAlpha, fockBeta,
         densityMatrixAlpha, densityMatrixBeta,
         molecularOrbitalCoefficientsAlpha, molecularOrbitalCoefficientsBeta,
-        epsilonAlpha, epsilonBeta
+        epsilonAlpha, epsilonBeta, iterationCount
       );
   return result;
 }
 
-std::tuple<arma::mat, arma::mat, arma::mat, arma::mat, arma::mat, arma::mat, arma::vec, arma::vec> Molecule::directInversionIterativeSubspaceAlogrithm(
+std::tuple<arma::mat, arma::mat, arma::mat, arma::mat, arma::mat, arma::mat, arma::vec, arma::vec, int> Molecule::scfDIIS(
   arma::mat gammaMatrix, 
   arma::mat overlapMatrix,
   arma::mat hCoreMatrix,
   int pElectrons,
   int qElectrons,
   int numPrevIters,  
-  bool consoleLog,
-  double lambda
+  bool consoleLog
 ) {
   // Initialize data structures
   std::deque<arma::mat> kPrevMolOrbitalCoeffMatricesAlpha;
@@ -1357,16 +1356,12 @@ std::tuple<arma::mat, arma::mat, arma::mat, arma::mat, arma::mat, arma::mat, arm
     iterationCount += 1;
   }
 
-  std::tuple<
-      arma::mat, arma::mat, 
-      arma::mat, arma::mat, 
-      arma::mat, arma::mat, 
-      arma::vec, arma::vec> result = std::make_tuple(
-        kPrevFockMatricesAlpha.back(), kPrevFockMatricesBeta.back(),
-        kPrevDensityMatricesAlpha.back(), kPrevDensityMatricesBeta.back(),
-        kPrevMolOrbitalCoeffMatricesAlpha.back(), kPrevMolOrbitalCoeffMatricesBeta.back(),
-        epsilonAlpha, epsilonBeta
-      );
+  std::tuple<arma::mat, arma::mat, arma::mat, arma::mat, arma::mat, arma::mat, arma::vec, arma::vec, int> result = std::make_tuple(
+    kPrevFockMatricesAlpha.back(), kPrevFockMatricesBeta.back(),
+    kPrevDensityMatricesAlpha.back(), kPrevDensityMatricesBeta.back(),
+    kPrevMolOrbitalCoeffMatricesAlpha.back(), kPrevMolOrbitalCoeffMatricesBeta.back(),
+    epsilonAlpha, epsilonBeta, iterationCount
+  );
   return result;
 }
 
@@ -1593,61 +1588,10 @@ arma::mat Molecule::energyDerivative(arma::mat densityAlphaMatrix, arma::mat den
   return energyGradient;
 }
 
-double Molecule::totalEnergy() {
-  // Compute necessary input matrices for DIIS algorithm
-  arma::mat overlapMat = overlapMatrix();
-  arma::mat gammaMat = gammaMatrix();
-  arma::mat hCoreMat = hCoreMatrix(
-    gammaMat,
-    overlapMat
-  );
-  // Run DIIS algorithm
-    // std::tuple<arma::mat, arma::mat, 
-    //            arma::mat, arma::mat,
-    //            arma::mat, arma::mat, 
-    //            arma::vec, arma::vec> result = directInversionIterativeSubspaceAlogrithm(
-    //             gammaMat, 
-    //             overlapMat,
-    //             hCoreMat,
-    //             numberAlphaElectrons,
-    //             numberBetaElectrons,
-    //             7,
-    //             false,
-    //             1.0
-    // );
-    std::tuple<arma::mat, arma::mat, 
-               arma::mat, arma::mat,
-               arma::mat, arma::mat, 
-               arma::vec, arma::vec> result = selfConsistentFieldAlgorithm(
-                gammaMat, 
-                overlapMat,
-                hCoreMat,
-                numberAlphaElectrons,
-                numberBetaElectrons,
-                false
-    );
-    arma::mat fockAlphaMatrix = std::get<0>(result);
-    arma::mat fockBetaMatrix = std::get<1>(result);
-    arma::mat densityAlphaMatrix = std::get<2>(result);
-    arma::mat densityBetaMatrix = std::get<3>(result);
-    arma::mat orbitalCoefficientsAlpha = std::get<4>(result);
-    arma::mat orbitalCoefficientsBeta = std::get<5>(result);
-
-  // Calculate total energy
-  double totalE = totalEnergy(
-                    fockAlphaMatrix,
-                    fockBetaMatrix,
-                    hCoreMat,
-                    hCoreMat,
-                    densityAlphaMatrix,
-                    densityBetaMatrix
-                  );
-  return totalE;
-}
-
 arma::mat Molecule::steepestDescentGeometryOptimizer(
   double stepSize, 
-  double tolerance, 
+  double tolerance,
+  std::string scfAlgo,
   bool logging=true,
   std::string animationPath=""
   ) {
@@ -1661,7 +1605,7 @@ arma::mat Molecule::steepestDescentGeometryOptimizer(
   arma::mat previousCoordinates;
   arma::mat energyGradient;
 
-  std::tuple<arma::mat, arma::mat, arma::mat, arma::mat, arma::mat, arma::mat, arma::vec, arma::vec> diisResult;
+  std::tuple<arma::mat, arma::mat, arma::mat, arma::mat, arma::mat, arma::mat, arma::vec, arma::vec, int> scfResult;
 
   arma::mat overlapMat;
   arma::mat gammaMat;
@@ -1677,27 +1621,37 @@ arma::mat Molecule::steepestDescentGeometryOptimizer(
 
   // Initialize optimization data
   originalStepSize = stepSize;
-  previousEnergy = totalEnergy();
+  
   overlapMat = overlapMatrix();
   gammaMat = gammaMatrix();
   hCoreMat = hCoreMatrix(
     gammaMat,
     overlapMat
   );
-  diisResult = selfConsistentFieldAlgorithm(
+  scfResult = selfConsistentFieldAlgorithm(
     gammaMat, 
     overlapMat,
     hCoreMat,
     numberAlphaElectrons,
     numberBetaElectrons,
+    scfAlgo,
     false
   );
-  fockAlphaMatrix = std::get<0>(diisResult);
-  fockBetaMatrix = std::get<1>(diisResult);
-  densityAlphaMatrix = std::get<2>(diisResult);
-  densityBetaMatrix = std::get<3>(diisResult);
-  orbitalCoefficientsAlpha = std::get<4>(diisResult);
-  orbitalCoefficientsBeta = std::get<5>(diisResult);
+  fockAlphaMatrix = std::get<0>(scfResult);
+  fockBetaMatrix = std::get<1>(scfResult);
+  densityAlphaMatrix = std::get<2>(scfResult);
+  densityBetaMatrix = std::get<3>(scfResult);
+  orbitalCoefficientsAlpha = std::get<4>(scfResult);
+  orbitalCoefficientsBeta = std::get<5>(scfResult);
+
+  previousEnergy = totalEnergy(
+    fockAlphaMatrix,
+    fockBetaMatrix,
+    hCoreMat,
+    hCoreMat,
+    densityAlphaMatrix,
+    densityBetaMatrix
+  );
 
   // Evaulate forces on initial cooridantes (CNDO/2 Energy Derivative)
   energyGradient = energyDerivative(densityAlphaMatrix, densityBetaMatrix).t();
@@ -1711,7 +1665,37 @@ arma::mat Molecule::steepestDescentGeometryOptimizer(
     // Calculate new coordinates
     previousCoordinates = coordinates;
     coordinates = previousCoordinates - stepSize * energyGradient / arma::norm(energyGradient, 2);
-    currentEnergy = totalEnergy();
+  
+    overlapMat = overlapMatrix();
+    gammaMat = gammaMatrix();
+    hCoreMat = hCoreMatrix(
+      gammaMat,
+      overlapMat
+    );
+    scfResult = selfConsistentFieldAlgorithm(
+      gammaMat, 
+      overlapMat,
+      hCoreMat,
+      numberAlphaElectrons,
+      numberBetaElectrons,
+      scfAlgo,
+      false
+    );
+    fockAlphaMatrix = std::get<0>(scfResult);
+    fockBetaMatrix = std::get<1>(scfResult);
+    densityAlphaMatrix = std::get<2>(scfResult);
+    densityBetaMatrix = std::get<3>(scfResult);
+    orbitalCoefficientsAlpha = std::get<4>(scfResult);
+    orbitalCoefficientsBeta = std::get<5>(scfResult);
+
+    currentEnergy = totalEnergy(
+      fockAlphaMatrix,
+      fockBetaMatrix,
+      hCoreMat,
+      hCoreMat,
+      densityAlphaMatrix,
+      densityBetaMatrix
+    );
 
     // Logging ingormation
     if (logging) {
@@ -1740,16 +1724,17 @@ arma::mat Molecule::steepestDescentGeometryOptimizer(
         gammaMat,
         overlapMat
       );
-      diisResult = selfConsistentFieldAlgorithm(
+      scfResult = selfConsistentFieldAlgorithm(
         gammaMat, 
         overlapMat,
         hCoreMat,
         numberAlphaElectrons,
         numberBetaElectrons,
+        scfAlgo,
         false
       );
-      densityAlphaMatrix = std::get<2>(diisResult);
-      densityBetaMatrix = std::get<3>(diisResult);
+      densityAlphaMatrix = std::get<2>(scfResult);
+      densityBetaMatrix = std::get<3>(scfResult);
 
       energyGradient = energyDerivative(densityAlphaMatrix, densityBetaMatrix).t();
 
@@ -1783,6 +1768,42 @@ arma::mat Molecule::steepestDescentGeometryOptimizer(
   coordsOFStream.close();
 
   return coordinates;
+}
+
+std::tuple<arma::mat, arma::mat, arma::mat, arma::mat, arma::mat, arma::mat, arma::vec, arma::vec, int> Molecule::selfConsistentFieldAlgorithm(
+  arma::mat gammaMatrix, 
+  arma::mat overlapMatrix,
+  arma::mat hCoreMatrix,
+  int pElectrons,
+  int qElectrons,
+  std::string algo,
+  bool consoleLog
+) {
+  std::tuple<arma::mat, arma::mat, arma::mat, arma::mat, arma::mat, arma::mat, arma::vec, arma::vec, int> result;
+  if (algo == "fixedPointIteration") {
+    result = scfFixedPointIteration(
+              gammaMatrix, 
+              overlapMatrix,
+              hCoreMatrix,
+              pElectrons,
+              qElectrons,
+              consoleLog
+    );
+  } else if (algo == "DIIS") {
+    result = scfDIIS(
+              gammaMatrix, 
+              overlapMatrix,
+              hCoreMatrix,
+              pElectrons,
+              qElectrons,
+              7,
+              consoleLog
+    );
+  } else {
+    throw std::invalid_argument("Received an invalid convergence algorithm option. Expected one of the following {\"DIIS\", \"fixedPointIteration\"}");
+  }
+
+  return result;
 }
 
 void Molecule::xyzCoordinatesToStream(std::ofstream& ofs, std::string commentLine) {

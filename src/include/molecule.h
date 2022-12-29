@@ -130,7 +130,7 @@ class Molecule {
       arma::mat, arma::mat, 
       arma::mat, arma::mat, 
       arma::mat, arma::mat, 
-      arma::vec, arma::vec> selfConsistentFieldAlgorithm(
+      arma::vec, arma::vec, int> scfFixedPointIteration(
         arma::mat gammaMatrix, 
         arma::mat overlapMatrix,
         arma::mat hCoreMatrix,
@@ -142,15 +142,27 @@ class Molecule {
       arma::mat, arma::mat, 
       arma::mat, arma::mat, 
       arma::mat, arma::mat, 
-      arma::vec, arma::vec> directInversionIterativeSubspaceAlogrithm(
+      arma::vec, arma::vec, int> selfConsistentFieldAlgorithm(
+        arma::mat gammaMatrix, 
+        arma::mat overlapMatrix,
+        arma::mat hCoreMatrix,
+        int pElectrons,
+        int qElectrons,
+        std::string algo,
+        bool consoleLog
+      );
+      std::tuple<
+      arma::mat, arma::mat, 
+      arma::mat, arma::mat, 
+      arma::mat, arma::mat, 
+      arma::vec, arma::vec, int> scfDIIS(
         arma::mat gammaMatrix, 
         arma::mat overlapMatrix,
         arma::mat hCoreMatrix,
         int pElectrons,
         int qElectrons,
         int numPrevIters,
-        bool consoleLog,
-        double lambda
+        bool consoleLog
       );
       arma::mat generateLagrangeMultiplierMatrix(std::deque<arma::mat> errorMatrices);
       double electronicEnergy(
@@ -171,7 +183,6 @@ class Molecule {
         arma::mat densityBetaMatrix,
         arma::mat densityAlphaMatrix
       );
-      double totalEnergy();
       arma::vec densityPerAtom(arma::mat densityMatrixAlpha, arma::mat densityMatrixBeta);
       arma::mat overlapMatrixPositionDerivative();
       arma::vec gammaTwoCenterTwoElectronRepulsionIntegralPositionDerivative(
@@ -202,7 +213,13 @@ class Molecule {
       );
       arma::mat energyDerivative(arma::mat densityAlphaMatrix, arma::mat densityBetaMatrix);
       arma::mat geometryOptimizer(std::string optimizer);
-      arma::mat steepestDescentGeometryOptimizer(double stepSize, double tolerance, bool logging, std::string animationPath);
+      arma::mat steepestDescentGeometryOptimizer(
+        double stepSize, 
+        double tolerance,
+        std::string scfAlgo,
+        bool logging, 
+        std::string animationPath
+        );
       void xyzCoordinatesToStream(std::ofstream& ofs, std::string commentLine);
 };
 
