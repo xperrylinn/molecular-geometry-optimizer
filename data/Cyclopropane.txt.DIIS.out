@@ -1,0 +1,5 @@
+Hello World! Running geometry optimization on input file ./data/Cyclopropane.txt
+Nuclear Repulsion Energy: 1160.8 eV
+Electronic energy: -1514.64 eV
+Total energy: -353.844 eV
+SCF iteration count: 8

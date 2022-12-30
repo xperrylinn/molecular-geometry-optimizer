@@ -1661,10 +1661,12 @@ arma::mat Molecule::steepestDescentGeometryOptimizer(
 
   // While the the norm of the gradient is above some tolerance
   int iterationCount = 0;
-  while (arma::norm(energyGradient, "fro") > tolerance && iterationCount < 30) {
+  // while (arma::norm(energyGradient, "fro") > tolerance && iterationCount < 30) {
+  while (arma::norm(energyGradient, "fro") > tolerance && stepSize > 0.0) {
+
     // Calculate new coordinates
     previousCoordinates = coordinates;
-    coordinates = previousCoordinates - stepSize * energyGradient / arma::norm(energyGradient, 2);
+    coordinates = previousCoordinates + stepSize * energyGradient / arma::norm(energyGradient, 2);
   
     overlapMat = overlapMatrix();
     gammaMat = gammaMatrix();
@@ -1757,9 +1759,9 @@ arma::mat Molecule::steepestDescentGeometryOptimizer(
       stepSize /= 2;
 
       // Check if step size is getting too small, if soo reset
-      if (stepSize < 1e-5) {
-        stepSize = originalStepSize / 2;
-      }
+      // if (stepSize < 1e-5) {
+      //   stepSize = originalStepSize / 2;
+      // }
     }
     iterationCount += 1;
   }
@@ -1767,10 +1769,203 @@ arma::mat Molecule::steepestDescentGeometryOptimizer(
   // Close the file stream
   coordsOFStream.close();
 
+  if (logging) {
+    coordinates.print("coordinates after opt.");
+  } 
+
   return coordinates;
 }
 
-std::tuple<arma::mat, arma::mat, arma::mat, arma::mat, arma::mat, arma::mat, arma::vec, arma::vec, int> Molecule::selfConsistentFieldAlgorithm(
+arma::mat Molecule::schoasticGradientDescentWithMomentumGeometryOptimizer(
+  double stepSize, 
+  double tolerance,
+  std::string scfAlgo,
+  bool logging=true,
+  std::string animationPath=""
+  ) {
+  
+  // Create file stream
+  std::ofstream coordsOFStream;
+  coordsOFStream.open(animationPath, std::ofstream::out);
+
+  // Define data structures
+  double previousEnergy, currentEnergy, originalStepSize;
+  arma::mat previousCoordinates;
+  arma::mat energyGradient;
+
+  std::tuple<arma::mat, arma::mat, arma::mat, arma::mat, arma::mat, arma::mat, arma::vec, arma::vec, int> scfResult;
+
+  arma::mat overlapMat;
+  arma::mat gammaMat;
+  arma::mat hCoreMat;
+  arma::mat fockAlphaMatrix;
+  arma::mat fockBetaMatrix;
+  arma::mat densityAlphaMatrix;
+  arma::mat densityBetaMatrix;
+  arma::mat orbitalCoefficientsAlpha;
+  arma::mat orbitalCoefficientsBeta;
+
+  std::string commentLine;
+
+  // Initialize optimization data
+  originalStepSize = stepSize;
+  
+  overlapMat = overlapMatrix();
+  gammaMat = gammaMatrix();
+  hCoreMat = hCoreMatrix(
+    gammaMat,
+    overlapMat
+  );
+  scfResult = selfConsistentFieldAlgorithm(
+    gammaMat, 
+    overlapMat,
+    hCoreMat,
+    numberAlphaElectrons,
+    numberBetaElectrons,
+    scfAlgo,
+    false
+  );
+  fockAlphaMatrix = std::get<0>(scfResult);
+  fockBetaMatrix = std::get<1>(scfResult);
+  densityAlphaMatrix = std::get<2>(scfResult);
+  densityBetaMatrix = std::get<3>(scfResult);
+  orbitalCoefficientsAlpha = std::get<4>(scfResult);
+  orbitalCoefficientsBeta = std::get<5>(scfResult);
+
+  previousEnergy = totalEnergy(
+    fockAlphaMatrix,
+    fockBetaMatrix,
+    hCoreMat,
+    hCoreMat,
+    densityAlphaMatrix,
+    densityBetaMatrix
+  );
+
+  // Evaulate forces on initial cooridantes (CNDO/2 Energy Derivative)
+  energyGradient = energyDerivative(densityAlphaMatrix, densityBetaMatrix).t();
+
+  // Write XYZ coordiantes to file stream
+  xyzCoordinatesToStream(coordsOFStream, "initial configuration before beginning optimization");
+
+  // While the the norm of the gradient is above some tolerance
+  int iterationCount = 0;
+  // while (arma::norm(energyGradient, "fro") > tolerance && iterationCount < 30) {
+  while (arma::norm(energyGradient, "fro") > tolerance && stepSize > 0.0) {
+
+    // Calculate new coordinates
+    previousCoordinates = coordinates;
+    coordinates = previousCoordinates + stepSize * energyGradient / arma::norm(energyGradient, 2);
+  
+    overlapMat = overlapMatrix();
+    gammaMat = gammaMatrix();
+    hCoreMat = hCoreMatrix(
+      gammaMat,
+      overlapMat
+    );
+    scfResult = selfConsistentFieldAlgorithm(
+      gammaMat, 
+      overlapMat,
+      hCoreMat,
+      numberAlphaElectrons,
+      numberBetaElectrons,
+      scfAlgo,
+      false
+    );
+    fockAlphaMatrix = std::get<0>(scfResult);
+    fockBetaMatrix = std::get<1>(scfResult);
+    densityAlphaMatrix = std::get<2>(scfResult);
+    densityBetaMatrix = std::get<3>(scfResult);
+    orbitalCoefficientsAlpha = std::get<4>(scfResult);
+    orbitalCoefficientsBeta = std::get<5>(scfResult);
+
+    currentEnergy = totalEnergy(
+      fockAlphaMatrix,
+      fockBetaMatrix,
+      hCoreMat,
+      hCoreMat,
+      densityAlphaMatrix,
+      densityBetaMatrix
+    );
+
+    // Logging ingormation
+    if (logging) {
+      commentLine = \
+        "iterationCount: " + std::to_string(iterationCount) + \
+        ", previousEnergy: " + std::to_string(previousEnergy) + \
+        ", currentEnergy: " + std::to_string(currentEnergy) + \
+        ", stepSize: " + std::to_string(stepSize);
+      std::cout << commentLine << std::endl;
+      previousCoordinates.print("previous coordinates:");
+      energyGradient.print("energy gradient:");
+      coordinates.print("new coordinates from applied forces:");
+    } 
+
+    // Write XYZ coordiantes to file stream
+    xyzCoordinatesToStream(coordsOFStream, commentLine);
+
+    if (currentEnergy < previousEnergy) { // Productive step, increase step size
+      // Update energy to newly accepted lower energy
+      previousEnergy = currentEnergy;
+
+      // Calculate a energy and then a new gradient
+      overlapMat = overlapMatrix();
+      gammaMat = gammaMatrix();
+      hCoreMat = hCoreMatrix(
+        gammaMat,
+        overlapMat
+      );
+      scfResult = selfConsistentFieldAlgorithm(
+        gammaMat, 
+        overlapMat,
+        hCoreMat,
+        numberAlphaElectrons,
+        numberBetaElectrons,
+        scfAlgo,
+        false
+      );
+      densityAlphaMatrix = std::get<2>(scfResult);
+      densityBetaMatrix = std::get<3>(scfResult);
+
+      energyGradient = energyDerivative(densityAlphaMatrix, densityBetaMatrix).t();
+
+      // Increase setpsize as step was productive
+      stepSize *= 1.25;
+
+      // Write XYZ coordiantes to file stream
+      commentLine = \
+        "iterationCount: " + std::to_string(iterationCount) + \
+        ", previousEnergy: " + std::to_string(previousEnergy) + \
+        ", currentEnergy: " + std::to_string(currentEnergy) + \
+        ", stepSize: " + std::to_string(stepSize);
+      xyzCoordinatesToStream(coordsOFStream, commentLine);
+
+    } else {  // Counter productive step, decrease step size
+      // Restore coordinates to previous state as step was not productive in lower energy
+      coordinates = previousCoordinates;
+      
+      // Descreate step size
+      stepSize /= 2;
+
+      // Check if step size is getting too small, if soo reset
+      // if (stepSize < 1e-5) {
+      //   stepSize = originalStepSize / 2;
+      // }
+    }
+    iterationCount += 1;
+  }
+
+  // Close the file stream
+  coordsOFStream.close();
+
+  if (logging) {
+    coordinates.print("coordinates after opt.");
+  } 
+
+  return coordinates;
+}
+
+std::tuple<arma::mat, arma::mat, arma::mat, arma::mat, arma::mat, arma::mat, arma::vec, arma::vec, int> 
+Molecule::selfConsistentFieldAlgorithm(
   arma::mat gammaMatrix, 
   arma::mat overlapMatrix,
   arma::mat hCoreMatrix,

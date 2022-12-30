@@ -6,8 +6,8 @@
 int main(int argc, char** argv) {
     
     // Setup
-    if (argc != 5) {
-      throw std::invalid_argument("Invalid number of arguments. Expected four arguments: input txt data file, number of alpha electrons, number of beta electrons, convergence algorithm"); 
+    if (argc != 6) {
+      throw std::invalid_argument("Invalid number of arguments. Expected four arguments: input txt data file, number of alpha electrons, number of beta electrons, convergence algorithm, bool for running opt."); 
     }
 
     std::unordered_set<std::string> allowed_atoms = {"H", "C"};
@@ -15,6 +15,7 @@ int main(int argc, char** argv) {
     int p = std::atoi(argv[2]);
     int q = std::atoi(argv[3]);
     std::string scfAlgo = argv[4];
+    bool optimization = argv[5];
 
     std::tuple<arma::mat, arma::mat, arma::mat, arma::mat, arma::mat, arma::mat, arma::vec, arma::vec, int> result;
 
@@ -89,13 +90,15 @@ int main(int argc, char** argv) {
     std::cout << "SCF iteration count: " << scfIterationCount << std::endl;
 
     // Run geometry optimization
-    molecule.steepestDescentGeometryOptimizer(
-      0.75, 
-      1e-2,
-      scfAlgo,
-      true, 
-      animationFilePath
-      ).print("coordinates after opt.");
-
+    if (optimization) {
+      molecule.steepestDescentGeometryOptimizer(
+        0.75, 
+        1e-2,
+        scfAlgo,
+        false, 
+        animationFilePath
+      );
+    }
+    
     return 0;
 }

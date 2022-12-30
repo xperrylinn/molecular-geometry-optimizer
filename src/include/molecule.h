@@ -220,6 +220,13 @@ class Molecule {
         bool logging, 
         std::string animationPath
         );
+      arma::mat Molecule::schoasticGradientDescentWithMomentumGeometryOptimizer(
+        double stepSize, 
+        double tolerance,
+        std::string scfAlgo,
+        bool logging, 
+        std::string animationPath
+      );
       void xyzCoordinatesToStream(std::ofstream& ofs, std::string commentLine);
 };
 
